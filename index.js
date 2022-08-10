@@ -5,7 +5,8 @@ dotenv.config()
 const client = new DiscordJS.Client({
  intents:[
     IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMessages
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent,
  ]
 })
 
@@ -13,9 +14,9 @@ client.on('ready', () => {
   console.log("Good Morning master")
 })
 
-client.on("messageContent", (msg) => {
+client.on("messageCreate", msg => {
   if (msg.content === "ping") {
-    msg.reply("pong");
+    msg.reply({content: "Yo momma"});
   }
 })
 

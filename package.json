@@ -1,0 +1,24 @@
+{
+  "name": "discord-soundboard-bot",
+  "version": "1.0.0",
+  "description": "This is a bot for Discord that allows a user to call a command and play a sound effect in the voice chat",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EukaryoticCS/Discord-Soundboard-Bot.git"
+  },
+  "keywords": [],
+  "author": "Damian Lagunas, Brandon Smith, Karlo Lopez, and Michael Odom",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EukaryoticCS/Discord-Soundboard-Bot/issues"
+  },
+  "homepage": "https://github.com/EukaryoticCS/Discord-Soundboard-Bot#readme",
+  "dependencies": {
+    "discord.js": "^14.1.2",
+    "dotenv": "^16.0.1"
+  }
+}

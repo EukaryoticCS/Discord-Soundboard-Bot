@@ -3,7 +3,7 @@ import { joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 dotenv.config()
 
-
+const prefix = "!";
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
@@ -42,9 +42,32 @@ client.on('ready', () => {
 			return
 		  };
 	})
+// Set the prefix 
+client.on("messageCreate", (message) => {
+	// Exit and stop if it's not there
+	if (!message.content.startsWith(prefix)) return;
 
+	if (message.content.startsWith(`${prefix}ping`)) {
+		message.channel.send("pong!");
+	} else
+
+	if (message.content.startsWith(`${prefix}yo`)) {
+		message.channel.send("momma!");
+	}
+});
 	
-	
+client.on("messageCreate", (message) => {
+	// Exit and stop if it's not there
+	if (!message.content.startsWith(prefix)) return;
+
+	if (message.content.startsWith(`${prefix}ping`)) {
+		message.channel.send("pong!");
+	} else
+
+	if (message.content.startsWith(`${prefix}yo`)) {
+		message.channel.send("momma!");
+	}
+});
 
 
 client.login(process.env.TOKEN)

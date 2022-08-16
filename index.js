@@ -4,7 +4,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
-const prefix = '!';
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
@@ -33,7 +32,7 @@ client.on('ready', () => {
 })
 
 	client.on("messageCreate", (msg) => {
-		if (msg.content === prefix + "goodGame") 
+		if (msg.content === "goodGame") 
     		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
 	})
 

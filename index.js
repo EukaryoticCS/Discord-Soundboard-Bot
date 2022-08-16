@@ -31,7 +31,6 @@ client.on('ready', () => {
 	})
 })
 
-<<<<<<< make-it-button
 	client.on("messageCreate", (msg) => {
 		if (msg.content === "goodGame") 
     		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
@@ -47,7 +46,6 @@ client.on('ready', () => {
 client.login(process.env.TOKEN)
 
 // Set the prefix 
-const prefix = "!";
 client.on("messageCreate", (message) => {
 	// Exit and stop if it's not there
 	if (!message.content.startsWith(prefix)) return;

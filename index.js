@@ -3,6 +3,8 @@ import { joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 dotenv.config()
 
+
+const prefix = '!';
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
@@ -23,10 +25,27 @@ client.on('ready', () => {
 	//end join vc bit
 	})
 
+
 	client.on("messageCreate", (msg) => {
-		if (msg.content === "ping") 
-    		msg.reply({content: "Yo momma"})
+		if (msg.content === prefix + "ping") 
+    		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
 	})
 })
+
+	client.on("messageCreate", (msg) => {
+		if (msg.content === prefix + "goodGame") 
+    		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+	})
+
+	client.on("messageCreate", (msg) => {
+		if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
+			msg.reply({content: "frik off wit dat gay stuff"})
+			return
+		  };
+	})
+
+	
+	
+
 
 client.login(process.env.TOKEN)

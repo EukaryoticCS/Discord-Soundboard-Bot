@@ -3,14 +3,39 @@ import { joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 dotenv.config()
 
+
+
+
+
+
 const prefix = "!";
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
     	IntentsBitField.Flags.GuildMessages,
     	IntentsBitField.Flags.MessageContent,
+		IntentsBitField.Flags.GuildMessageReactions,
 	]
 })
+
+// Set the prefix 
+client.on("messageCreate", (message) => {
+	// Exit and stop if it's not there
+	if (!message.content.startsWith(prefix)) return;
+
+	if (message.content.startsWith(`${prefix}ping`)) {
+		message.channel.send("https://en.wikipedia.org/wiki/Pong");
+	}
+	if(message.content.startsWith(`${prefix}soundboard`)) {
+		message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera");
+	}
+	if(message.content === "1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera")
+	{
+		message.react('1️⃣')
+	}
+});
+
+
 
 client.on('ready', () => {
 	console.log("Good Morning master")
@@ -23,15 +48,8 @@ client.on('ready', () => {
     	adapterCreator: guild.voiceAdapterCreator,
 	//end join vc bit
 	})
-
-
-	client.on("messageCreate", (msg) => {
-		if (msg.content === prefix + "ping") 
-    		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
-	})
 })
 
-<<<<<<< make-it-button
 	client.on("messageCreate", (msg) => {
 		if (msg.content === "goodGame") 
     		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
@@ -43,20 +61,9 @@ client.on('ready', () => {
 			return
 		  };
 	})
-// Set the prefix 
+
+
+
+	
 client.login(process.env.TOKEN)
 
-// Set the prefix 
-const prefix = "!";
-client.on("messageCreate", (message) => {
-	// Exit and stop if it's not there
-	if (!message.content.startsWith(prefix)) return;
-
-	if (message.content.startsWith(`${prefix}ping`)) {
-		message.channel.send("pong!");
-	} else
-
-	if (message.content.startsWith(`${prefix}yo`)) {
-		message.channel.send("momma!");
-	}
-});

@@ -1,6 +1,7 @@
 import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js'
-import { joinVoiceChannel } from '@discordjs/voice'
+import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
+import play from 'play-dl';
 dotenv.config()
 
 const prefix = "!";
@@ -9,28 +10,65 @@ const client = new DiscordJS.Client({
     	IntentsBitField.Flags.Guilds,
     	IntentsBitField.Flags.GuildMessages,
     	IntentsBitField.Flags.MessageContent,
+		IntentsBitField.Flags.GuildVoiceStates,
 	]
 })
 
-client.on('ready', () => {
-	console.log("Good Morning master")
-	//Join vc bit
-	const guild = client.guilds.cache.get("1006328808401555527")
-	const channel = guild.channels.cache.get("1006328808917438547")
+async function connectToChannel() {
+	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
+	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
 	const connection = joinVoiceChannel({
-    	channelId: channel.id,
-    	guildId: channel.guild.id,
-    	adapterCreator: guild.voiceAdapterCreator,
-	//end join vc bit
-	})
+		channelId: channel.id,
+		guildId: channel.guild.id,
+		adapterCreator: guild.voiceAdapterCreator,
+	});
+	try {
+		return connection;
+	} catch (error) {
+		connection.destroy();
+		throw error;
+	}
+}
 
+client.on('ready', () =>  {
+	console.log("Good Morning")
+
+	client.on("messageCreate", async (msg) => {
+		if (msg.content === "join") {
+			connectToChannel();
+		}
+
+		if (msg.content === "leave") {
+			(await connectToChannel()).destroy();
+		}
+			
+
+		if (msg.content === "bruh") {
+			//join
+			const connection = await connectToChannel();
+
+			//play sound (bruh)
+			const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			player.play(resource);
+			player.on('error', (error) => console.error(error));
+			connection.subscribe(player);
+		}
+
+<<<<<<< Updated upstream
 
 	client.on("messageCreate", (msg) => {
 		if (msg.content === prefix + "ping") 
     		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+=======
+>>>>>>> Stashed changes
 	})
+
 })
 
+<<<<<<< Updated upstream
 	client.on("messageCreate", (msg) => {
 		if (msg.content === "goodGame") 
     		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
@@ -58,3 +96,8 @@ client.on("messageCreate", (message) => {
 		message.channel.send("momma!");
 	}
 });
+=======
+client.login(process.env.TOKEN)
+
+//const resource = createAudioResource("..\\sources\\Boosted_laughter.mp3")
+>>>>>>> Stashed changes

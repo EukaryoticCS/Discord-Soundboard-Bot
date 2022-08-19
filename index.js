@@ -29,9 +29,10 @@ client.on("messageCreate", (message) => {
 	if(message.content.startsWith(`${prefix}soundboard`)) {
 		message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera");
 	}
-	if(message.content === "1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera")
+	if(message.content === "1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera" && message.author.id === '1006684796983971900')
 	{
-		message.react('1️⃣')
+		message.react('🤓')
+		return
 	}
 });
 
@@ -61,6 +62,13 @@ client.on('ready', () => {
 			return
 		  };
 	})
+
+	// client.on("messageCreate", (msg) => {
+	// 	if (msg.author.id === '300041614322040842') {
+	// 		msg.react("🤓")
+	// 		return
+	// 	  };
+	// })
 
 
 

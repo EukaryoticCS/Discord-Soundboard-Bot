@@ -2,12 +2,6 @@ import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from '
 import { joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 dotenv.config()
-
-
-
-
-
-
 const prefix = "!";
 const client = new DiscordJS.Client({
 	intents:[
@@ -27,13 +21,22 @@ client.on("messageCreate", (message) => {
 		message.channel.send("https://en.wikipedia.org/wiki/Pong");
 	}
 	if(message.content.startsWith(`${prefix}soundboard`)) {
-		message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera");
-	}
-	if(message.content === "1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera" && message.author.id === '1006684796983971900')
-	{
-		message.react('🤓')
-		return
-	}
+        message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
+            sentMessage.react('1️⃣')
+			sentMessage.react('2️⃣')
+			sentMessage.react('3️⃣')
+			sentMessage.react('4️⃣')
+			sentMessage.react('5️⃣')
+			client.on('messageReactionAdd', (reaction, author) => {
+				if(reaction.message.author == "1006684796983971900"){
+				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+					if(reaction.message.reactions.cache.get('1️⃣').count == 2){
+						message.channel.send("{Bruh sound effect here}")
+					}
+				}
+			})
+        });
+    }
 });
 
 
@@ -63,12 +66,6 @@ client.on('ready', () => {
 		  };
 	})
 
-	// client.on("messageCreate", (msg) => {
-	// 	if (msg.author.id === '300041614322040842') {
-	// 		msg.react("🤓")
-	// 		return
-	// 	  };
-	// })
 
 
 

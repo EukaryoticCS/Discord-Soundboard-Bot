@@ -1,23 +1,143 @@
-import DiscordJS, { IntentsBitField } from 'discord.js'
+import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js'
+import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
+import play from 'play-dl';
 dotenv.config()
 
+const prefix = "!";
 const client = new DiscordJS.Client({
- intents:[
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.MessageContent,
- ]
+	intents:[
+    	IntentsBitField.Flags.Guilds,
+    	IntentsBitField.Flags.GuildMessages,
+    	IntentsBitField.Flags.MessageContent,
+		IntentsBitField.Flags.GuildVoiceStates,
+	]
 })
 
-client.on('ready', () => {
-  console.log("Good Morning master")
+async function connectToChannel() {
+	const guild = client.guilds.cache.get("797681820304539669") //Guild/Server ID
+	const channel = guild.channels.cache.get("1009220541628043446") //Voice chat channel ID
+	const connection = joinVoiceChannel({
+		channelId: channel.id,
+		guildId: channel.guild.id,
+		adapterCreator: guild.voiceAdapterCreator,
+	});
+	try {
+		return connection;
+	} catch (error) {
+		connection.destroy();
+		throw error;
+	}
+}
+
+client.on('ready', () =>  {
+	console.log("Good Morning Master")
+
+	client.on("messageCreate", async (msg) => {
+		if (msg.content === "join") {
+			connectToChannel();
+		}
+
+		if (msg.content === "leave") {
+			(await connectToChannel()).destroy();
+		}
+			
+
+		if (msg.content === "bruh") {
+			//join
+			const connection = await connectToChannel();
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+		///https://youtu.be/Ta2CK4ByGsw
+
+
+		if (msg.content === "boowomp") {
+			//join
+			const connection = await connectToChannel();
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+
+		if (msg.content === "mario scream") {
+			//join
+			const connection = await connectToChannel();
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+
+		if (msg.content.startsWith(`${prefix}play music`) ){
+			//join
+			const connection = await connectToChannel();
+
+			let str = msg.content;
+			let substrings = str.split(' ')[2];///substing is the Url of the video 
+			
+			console.log(substrings);
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream(substrings, {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+		if (msg.content === prefix + "ping") 
+    		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+
+		if (msg.content === "goodGame") 
+    		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+
+		if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
+			msg.reply({content: "frik off wit dat gay stuff"})
+			return
+			};
+	})
+
 })
 
-client.on("messageCreate", msg => {
-  if (msg.content === "ping") {
-    msg.reply({content: "Yo momma"});
-  }
-})
+// Set the prefix 
+client.on("messageCreate", (message) => {
+	// Exit and stop if it's not there
+	if (!message.content.startsWith(prefix)) return;
+
+	if (message.content.startsWith(`${prefix}ping`)) {
+		message.channel.send("pong!");
+	} else
+
+	if (message.content.startsWith(`${prefix}yo`)) {
+		message.channel.send("momma!");
+	}
+});
 
 client.login(process.env.TOKEN)

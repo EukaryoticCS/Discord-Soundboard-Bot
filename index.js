@@ -10,6 +10,7 @@ const client = new DiscordJS.Client({
     	IntentsBitField.Flags.GuildMessages,
     	IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMessageReactions,
+		IntentsBitField.Flags.GuildVoiceStates,
 	]
 })
 
@@ -40,8 +41,6 @@ client.on("messageCreate", (message) => {
     }
 });
 
-
-
 client.on('ready', () => {
 	console.log("Good Morning master")
 	//Join vc bit
@@ -53,11 +52,6 @@ client.on('ready', () => {
     	adapterCreator: guild.voiceAdapterCreator,
 	//end join vc bit
 	})
-})
-
-	client.on("messageCreate", (msg) => {
-		IntentsBitField.Flags.GuildVoiceStates,
-	]
 })
 
 async function connectToChannel() {

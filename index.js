@@ -78,49 +78,57 @@ async function connectToChannel() {
 
 client.on('ready', () =>  {
 	console.log("Good Morning Master")
+})
 
-	client.on("messageCreate", async (msg) => {
-		if (msg.content === "join") {
-			connectToChannel();
-		}
+client.on("messageCreate", async (msg) => {
+	if (msg.content === "join") {
+		connectToChannel();
+	}
 
-		if (msg.content === "leave") {
-			(await connectToChannel()).destroy();
-		}
-			
+	if (msg.content === "leave") {
+		(await connectToChannel()).destroy();
+	}
 
-		if (msg.content === "bruh") {
-			//join
-			const connection = await connectToChannel();
+	if (msg.content === "bruh") {
+		//join
+		const connection = await connectToChannel();
 
-			//find yt link, create audio file, create player
-			const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
-			const player = createAudioPlayer();
-			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+		//find yt link, create audio file, create player
+		const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-			//play sound (bruh)
-			player.play(resource);
-			player.on('error', (error) => console.error(error)); //Just in case
-			connection.subscribe(player);
-		}
+		//play sound (bruh)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
+	}
 
-		if (msg.content === prefix + "ping") 
-    		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+	if (msg.content === prefix + "ping") 
+		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
 
-		if (msg.content === "goodGame") 
-    		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+	if (msg.content === "goodGame") 
+		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
 
-		if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
-			msg.reply({content: "frik off wit dat gay stuff"})
-			return
-			};
-	})
-
+	if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
+		msg.reply({content: "frik off wit dat gay stuff"})
+		return
+		};
 })
 
 // Set the prefix 
-client.on("messageCreate", (message) => {
-	// Exit and stop if it's not there
-	if (!message.content.startsWith(prefix)) return;
+// client.on("messageCreate", (message) => {
+// 	// Exit and stop if it's not there
+// 	if (!message.content.startsWith(prefix)) return;
+
+// 	if (message.content.startsWith(`${prefix}ping`)) {
+// 		message.channel.send("pong!");
+// 	} else
+
+// 	if (message.content.startsWith(`${prefix}yo`)) {
+// 		message.channel.send("momma!");
+// 	}
+// });
+
 
 client.login(process.env.TOKEN)

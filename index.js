@@ -34,16 +34,16 @@ client.on('ready', () =>  {
 	console.log("Good Morning Master")
 
 	client.on("messageCreate", async (msg) => {
-		if (msg.content === "join") {
+		if(msg.content.startsWith(`${prefix}join`) )  {
 			connectToChannel();
 		}
 
-		if (msg.content === "leave") {
+		if (msg.content.startsWith(`${prefix}leave`) ) {
 			(await connectToChannel()).destroy();
 		}
 			
 
-		if (msg.content === "bruh") {
+		if (msg.content.startsWith(`${prefix}bruh`) ){
 			//join
 			const connection = await connectToChannel();
 
@@ -60,7 +60,7 @@ client.on('ready', () =>  {
 		///https://youtu.be/Ta2CK4ByGsw
 
 
-		if (msg.content === "boowomp") {
+		if  (msg.content.startsWith(`${prefix}boowomp`) ) {
 			//join
 			const connection = await connectToChannel();
 
@@ -76,7 +76,7 @@ client.on('ready', () =>  {
 		}
 
 
-		if (msg.content === "mario scream") {
+		if  (msg.content.startsWith(`${prefix}mario Scream`) ){
 			//join
 			const connection = await connectToChannel();
 

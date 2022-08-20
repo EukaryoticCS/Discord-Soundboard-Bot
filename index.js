@@ -3,7 +3,7 @@ import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnecti
 import dotenv from 'dotenv'
 import play from 'play-dl';
 dotenv.config()
-const prefix = "!";
+const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
@@ -14,8 +14,46 @@ const client = new DiscordJS.Client({
 	]
 })
 
-// Set the prefix 
-client.on("messageCreate", (message) => {
+async function connectToChannel() {
+	const guild = client.guilds.cache.get("1010406994332627026") //Guild/Server ID
+	const channel = guild.channels.cache.get("1010406995083399212") //Voice chat channel ID
+	const connection = joinVoiceChannel({
+		channelId: channel.id,
+		guildId: channel.guild.id,
+		adapterCreator: guild.voiceAdapterCreator,
+	});
+	try {
+		return connection;
+	} catch (error) {
+		connection.destroy();
+		throw error;
+	}
+}
+
+//Pull commands out to methods or separate files
+async function bruh() {
+	//join
+	const connection = await connectToChannel();
+
+	//find yt link, create audio file, create player
+	const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+	//play sound (bruh)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
+
+	//leave
+	//Make the bot leave the vc after sound has played
+}
+
+client.on('ready', () => {
+	console.log("Good Morning master")
+})
+
+client.on("messageCreate", async (message) => { //Make commands not case-sensitive
 	// Exit and stop if it's not there
 	if (!message.content.startsWith(prefix)) return;
 
@@ -32,83 +70,32 @@ client.on("messageCreate", (message) => {
 			client.on('messageReactionAdd', (reaction, author) => {
 				if(reaction.message.author == "1006684796983971900"){
 				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-					if(reaction.message.reactions.cache.get('1️⃣').count == 2){
-						message.channel.send("{Bruh sound effect here}")
+					if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
+						console.log("1 pressed!");
+						message.channel.send("{Bruh sound effect here}");
+						bruh();
 					}
 				}
 			})
         });
     }
-});
-
-client.on('ready', () => {
-	console.log("Good Morning master")
-	//Join vc bit
-	const guild = client.guilds.cache.get("1006328808401555527")
-	const channel = guild.channels.cache.get("1006328808917438547")
-	const connection = joinVoiceChannel({
-    	channelId: channel.id,
-    	guildId: channel.guild.id,
-    	adapterCreator: guild.voiceAdapterCreator,
-	//end join vc bit
-	})
-})
-
-async function connectToChannel() {
-	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
-	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
-	const connection = joinVoiceChannel({
-		channelId: channel.id,
-		guildId: channel.guild.id,
-		adapterCreator: guild.voiceAdapterCreator,
-	});
-	try {
-		return connection;
-	} catch (error) {
-		connection.destroy();
-		throw error;
-	}
-}
-
-client.on('ready', () =>  {
-	console.log("Good Morning Master")
-})
-
-client.on("messageCreate", async (msg) => {
-	if (msg.content === "join") {
+	if (message.content.startsWith(`${prefix}join`))
 		connectToChannel();
-	}
 
-	if (msg.content === "leave") {
+	if (message.content.startsWith(`${prefix}leave`)) //Fix so it doesn't join and then leave if not already in a chat
 		(await connectToChannel()).destroy();
-	}
 
-	if (msg.content === "bruh") {
-		//join
-		const connection = await connectToChannel();
+	if (message.content.startsWith(`${prefix}bruh`))
+		bruh();
 
-		//find yt link, create audio file, create player
-		const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	if (message.content.startsWith(`${prefix}goodGame`)) 
+		message.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
 
-		//play sound (bruh)
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
-	}
-
-	if (msg.content === prefix + "ping") 
-		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
-
-	if (msg.content === "goodGame") 
-		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
-
-	if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
-		msg.reply({content: "frik off wit dat gay stuff"})
+	if (message.author.id === '642942437299585066' && message.content === 'gay') {
+		message.reply({content: "frik off wit dat gay stuff"})
 		return
 		};
-})
+});
 
 // Set the prefix 
 // client.on("messageCreate", (message) => {
@@ -123,6 +110,5 @@ client.on("messageCreate", async (msg) => {
 // 		message.channel.send("momma!");
 // 	}
 // });
-
 
 client.login(process.env.TOKEN)

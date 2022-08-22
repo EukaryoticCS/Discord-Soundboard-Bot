@@ -8,8 +8,8 @@ const prefix = "!"; //Needs to be dynamically changed in the future on a per-ser
 
 const client = new DiscordJS.Client({
 	intents:[
-    	IntentsBitField.Flags.Guilds,
-    	IntentsBitField.Flags.GuildMessages,
+		IntentsBitField.Flags.Guilds,
+		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMessageReactions,
 		IntentsBitField.Flags.GuildVoiceStates,
@@ -53,6 +53,8 @@ async function bruh() {
 
 client.on('ready', () =>  {
 	console.log("Good Morning Master")
+});
+
 
 	client.on("messageCreate", async (msg) => {
 		if(msg.content.toLowerCase().startsWith(`${prefix}join`) )  {
@@ -74,53 +76,60 @@ client.on('ready', () =>  {
 			//join
 			const connection = await connectToChannel();
 
-			//find yt link, create audio file, create player
-			const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
-			const player = createAudioPlayer();
-			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	if (msg.content.startsWith(`${prefix}bruh`)){
+		bruh();
+	}
+	///https://youtu.be/Ta2CK4ByGsw
 
-			//play sound (bruh)
-			player.play(resource);
-			player.on('error', (error) => console.error(error)); //Just in case
-			connection.subscribe(player);
-		}
+	if  (msg.content.startsWith(`${prefix}boowomp`)) {
+		//join
+		const connection = await connectToChannel();
+
+		//find yt link, create audio file, create player
+		const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
 
 		if  (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
 			//join
 			const connection = await connectToChannel();
 
-			//find yt link, create audio file, create player
-			const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
-			const player = createAudioPlayer();
-			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	if  (msg.content.startsWith(`${prefix}mario Scream`) ){
+		//join
+		const connection = await connectToChannel();
 
-			//play sound (bruh)
-			player.play(resource);
-			player.on('error', (error) => console.error(error)); //Just in case
-			connection.subscribe(player);
-		}
+		//find yt link, create audio file, create player
+		const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+		//play sound (bruh)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
+	}
 
 
 		if (msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
 			//join
 			const connection = await connectToChannel();
 
-			let str = msg.content;
-			let substrings = str.split(' ')[2];///substing is the Url of the video 
-			
-			console.log(substrings);
+		let str = msg.content;
+		let substrings = str.split(' ')[2];///substing is the Url of the video 
+		console.log(substrings);
 
-			//find yt link, create audio file, create player
-			const stream = await play.stream(substrings, {filter: "audioonly"})
-			const player = createAudioPlayer();
-			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+		//find yt link, create audio file, create player
+		const stream = await play.stream(substrings, {filter: "audioonly"})
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-			//play sound (bruh)
-			player.play(resource);
-			player.on('error', (error) => console.error(error)); //Just in case
-			connection.subscribe(player);
-		}
+		//play sound (bruh)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
+	}
+
 
 		if (msg.content === prefix + "ping") 
 			msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
@@ -144,17 +153,17 @@ client.on('ready', () =>  {
         if(reaction.message.author == "1006684796983971900"){
          	//Here you can check the message itself, the author, a tag on the message or in its content, title ...
             if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
+
 			console.log("1 pressed!");
 			msg.channel.send("{Bruh sound effect here}");
 			bruh();
-            }
+			}
 		}
-        })
-		});
-	}
-	})
+		})
+	});
+}
 })
-	
+
 // Set the prefix 
 // client.on("messageCreate", (message) => {
 // 	// Exit and stop if it's not there

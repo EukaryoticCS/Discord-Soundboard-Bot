@@ -8,8 +8,8 @@ const prefix = "!"; //Needs to be dynamically changed in the future on a per-ser
 
 const client = new DiscordJS.Client({
 	intents:[
-    	IntentsBitField.Flags.Guilds,
-    	IntentsBitField.Flags.GuildMessages,
+		IntentsBitField.Flags.Guilds,
+		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMessageReactions,
 		IntentsBitField.Flags.GuildVoiceStates,

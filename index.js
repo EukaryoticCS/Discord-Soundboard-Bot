@@ -64,7 +64,7 @@ client.on('ready', () =>  {
 		}
 			
 
-		if (msg.content.startsWith(`${prefix}bruh`) ){
+		if (msg.content.toLowerCase().startsWith(`${prefix}bruh`) ){
 			bruh();
 		}
 		///https://youtu.be/Ta2CK4ByGsw

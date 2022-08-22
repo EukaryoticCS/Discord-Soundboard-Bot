@@ -10,9 +10,11 @@ const client = new DiscordJS.Client({
     	IntentsBitField.Flags.Guilds,
     	IntentsBitField.Flags.GuildMessages,
     	IntentsBitField.Flags.MessageContent,
-		IntentsBitField.Flags.GuildVoiceStates,
+		  IntentsBitField.Flags.GuildMessageReactions,
+		  IntentsBitField.Flags.GuildVoiceStates,
 	]
 })
+
 
 async function connectToChannel() {
 	const guild = client.guilds.cache.get("797681820304539669") //Guild/Server ID
@@ -139,5 +141,34 @@ client.on("messageCreate", (message) => {
 		message.channel.send("momma!");
 	}
 });
+
+// Set the prefix 
+client.on("messageCreate", (message) => {
+	// Exit and stop if it's not there
+	if (!message.content.startsWith(prefix)) return;
+
+	if (message.content.startsWith(`${prefix}ping`)) {
+		message.channel.send("https://en.wikipedia.org/wiki/Pong");
+	}
+  
+	if(message.content.startsWith(`${prefix}soundboard`)) {
+        message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
+            sentMessage.react('1️⃣')
+			sentMessage.react('2️⃣')
+			sentMessage.react('3️⃣')
+			sentMessage.react('4️⃣')
+			sentMessage.react('5️⃣')
+			client.on('messageReactionAdd', (reaction, author) => {
+				if(reaction.message.author == "1006684796983971900"){
+				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+					if(reaction.message.reactions.cache.get('1️⃣').count == 2){
+						message.channel.send("{Bruh sound effect here}")
+					}
+				}
+			})
+        });
+    }
+});
+
 
 client.login(process.env.TOKEN)

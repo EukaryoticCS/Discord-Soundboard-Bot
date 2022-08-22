@@ -3,12 +3,14 @@ import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnecti
 import dotenv from 'dotenv'
 import play from 'play-dl';
 dotenv.config()
+
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
+
 const client = new DiscordJS.Client({
 	intents:[
     	IntentsBitField.Flags.Guilds,
     	IntentsBitField.Flags.GuildMessages,
-    	IntentsBitField.Flags.MessageContent,
+		IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMessageReactions,
 		IntentsBitField.Flags.GuildVoiceStates,
 	]
@@ -49,54 +51,110 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
-client.on('ready', () => {
-	console.log("Good Morning master")
-})
+client.on('ready', () =>  {
+	console.log("Good Morning Master")
 
-client.on("messageCreate", async (message) => { //Make commands not case-sensitive
-	// Exit and stop if it's not there
-	if (!message.content.startsWith(prefix)) return;
+	client.on("messageCreate", async (msg) => {
+		if(msg.content.startsWith(`${prefix}join`) )  {
+			connectToChannel();
+		}
 
-	if (message.content.startsWith(`${prefix}ping`)) {
-		message.channel.send("https://en.wikipedia.org/wiki/Pong");
-	}
-	if(message.content.startsWith(`${prefix}soundboard`)) {
-        message.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
+		if (msg.content.startsWith(`${prefix}leave`) ) {
+			(await connectToChannel()).destroy();
+		}
+			
+
+		if (msg.content.startsWith(`${prefix}bruh`) ){
+			bruh();
+		}
+		///https://youtu.be/Ta2CK4ByGsw
+
+
+		if  (msg.content.startsWith(`${prefix}boowomp`) ) {
+			//join
+			const connection = await connectToChannel();
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+
+		if  (msg.content.startsWith(`${prefix}mario Scream`) ){
+			//join
+			const connection = await connectToChannel();
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+
+		if (msg.content.startsWith(`${prefix}play music`) ){
+			//join
+			const connection = await connectToChannel();
+
+			let str = msg.content;
+			let substrings = str.split(' ')[2];///substing is the Url of the video 
+			
+			console.log(substrings);
+
+			//find yt link, create audio file, create player
+			const stream = await play.stream(substrings, {filter: "audioonly"})
+			const player = createAudioPlayer();
+			const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+			//play sound (bruh)
+			player.play(resource);
+			player.on('error', (error) => console.error(error)); //Just in case
+			connection.subscribe(player);
+		}
+
+		if (msg.content === prefix + "ping") 
+			msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+
+		if (msg.content === "goodGame") 
+			msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+
+		if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
+			msg.reply({content: "frik off wit dat gay stuff"})
+			return
+			};
+
+    if(msg.content.startsWith(`${prefix}soundboard`)) {
+        msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
             sentMessage.react('1️⃣')
-			sentMessage.react('2️⃣')
-			sentMessage.react('3️⃣')
-			sentMessage.react('4️⃣')
-			sentMessage.react('5️⃣')
-			client.on('messageReactionAdd', (reaction, author) => {
-				if(reaction.message.author == "1006684796983971900"){
-				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-					if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
-						console.log("1 pressed!");
-						message.channel.send("{Bruh sound effect here}");
-						bruh();
-					}
-				}
-			})
-        });
-    }
-	if (message.content.startsWith(`${prefix}join`))
-		connectToChannel();
-
-	if (message.content.startsWith(`${prefix}leave`)) //Fix so it doesn't join and then leave if not already in a chat
-		(await connectToChannel()).destroy();
-
-	if (message.content.startsWith(`${prefix}bruh`))
-		bruh();
-
-	if (message.content.startsWith(`${prefix}goodGame`)) 
-		message.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
-
-	if (message.author.id === '642942437299585066' && message.content === 'gay') {
-		message.reply({content: "frik off wit dat gay stuff"})
-		return
-		};
-});
-
+        sentMessage.react('2️⃣')
+        sentMessage.react('3️⃣')
+        sentMessage.react('4️⃣')
+        sentMessage.react('5️⃣')
+        client.on('messageReactionAdd', (reaction, author) => {
+        if(reaction.message.author == "1006684796983971900"){
+         	//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+            if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
+			console.log("1 pressed!");
+			msg.channel.send("{Bruh sound effect here}");
+			bruh();
+            }
+		}
+        })
+		});
+	}
+	})
+})
+	
 // Set the prefix 
 // client.on("messageCreate", (message) => {
 // 	// Exit and stop if it's not there

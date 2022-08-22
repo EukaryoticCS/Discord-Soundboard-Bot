@@ -17,8 +17,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get("1010406994332627026") //Guild/Server ID
-	const channel = guild.channels.cache.get("1010406995083399212") //Voice chat channel ID
+	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
+	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -55,11 +55,11 @@ client.on('ready', () =>  {
 	console.log("Good Morning Master")
 
 	client.on("messageCreate", async (msg) => {
-		if(msg.content.startsWith(`${prefix}join`) )  {
+		if(msg.content.toLowerCase().startsWith(`${prefix}join`) )  {
 			connectToChannel();
 		}
 
-		if (msg.content.startsWith(`${prefix}leave`) ) {
+		if (msg.content.toLowerCase().startsWith(`${prefix}leave`) ) {
 			(await connectToChannel()).destroy();
 		}
 			
@@ -70,7 +70,7 @@ client.on('ready', () =>  {
 		///https://youtu.be/Ta2CK4ByGsw
 
 
-		if  (msg.content.startsWith(`${prefix}boowomp`) ) {
+		if  (msg.content.toLowerCase().startsWith(`${prefix}boowomp`) ) {
 			//join
 			const connection = await connectToChannel();
 
@@ -86,7 +86,7 @@ client.on('ready', () =>  {
 		}
 
 
-		if  (msg.content.startsWith(`${prefix}mario Scream`) ){
+		if  (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
 			//join
 			const connection = await connectToChannel();
 
@@ -102,7 +102,7 @@ client.on('ready', () =>  {
 		}
 
 
-		if (msg.content.startsWith(`${prefix}play music`) ){
+		if (msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
 			//join
 			const connection = await connectToChannel();
 
@@ -133,7 +133,7 @@ client.on('ready', () =>  {
 			return
 			};
 
-    if(msg.content.startsWith(`${prefix}soundboard`)) {
+    if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
         msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
             sentMessage.react('1️⃣')
         sentMessage.react('2️⃣')

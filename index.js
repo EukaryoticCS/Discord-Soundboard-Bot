@@ -8,8 +8,8 @@ const prefix = "!"; //Needs to be dynamically changed in the future on a per-ser
 
 const client = new DiscordJS.Client({
 	intents:[
-    	IntentsBitField.Flags.Guilds,
-    	IntentsBitField.Flags.GuildMessages,
+		IntentsBitField.Flags.Guilds,
+		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.MessageContent,
 		IntentsBitField.Flags.GuildMessageReactions,
 		IntentsBitField.Flags.GuildVoiceStates,
@@ -17,8 +17,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get("1010406994332627026") //Guild/Server ID
-	const channel = guild.channels.cache.get("1010406995083399212") //Voice chat channel ID
+	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
+	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,

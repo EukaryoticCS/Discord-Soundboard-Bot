@@ -17,8 +17,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get("1010406994332627026") //Guild/Server ID
-	const channel = guild.channels.cache.get("1010406995083399212") //Voice chat channel ID
+	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
+	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -55,6 +55,18 @@ client.on('ready', () =>  {
 	console.log("Good Morning Master")
 });
 
+async function ping(){
+	msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+}
+
+async function gay(){
+	msg.reply({content: "frik off wit dat gay stuff"})
+}
+
+async function bestGame(){
+	msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+}
+
 client.on("messageCreate", async (msg) => {
 	if(msg.content.startsWith(`${prefix}join`)) {
 		connectToChannel();
@@ -78,7 +90,7 @@ client.on("messageCreate", async (msg) => {
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-		//play sound (bruh)
+		//play sound (boowomp)
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
@@ -93,7 +105,7 @@ client.on("messageCreate", async (msg) => {
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-		//play sound (bruh)
+		//play sound (mario scream)
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
@@ -112,21 +124,20 @@ client.on("messageCreate", async (msg) => {
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-		//play sound (bruh)
+		//play sound (play youtube music)
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
 	}
 
 	if (msg.content === prefix + "ping") 
-		msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
+		ping()
 
 	if (msg.content === "goodGame") 
-		msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
+		bestGame()
 
 	if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
-		msg.reply({content: "frik off wit dat gay stuff"})
-		return;
+		gay();
 	};
 
 	if(msg.content.startsWith(`${prefix}soundboard`)) {
@@ -143,6 +154,16 @@ client.on("messageCreate", async (msg) => {
 			console.log("1 pressed!");
 			msg.channel.send("{Bruh sound effect here}");
 			bruh();
+			}
+			else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
+				console.log("2 pressed!");
+				msg.channel.send("{I've ponged}");
+				ping();
+			}
+			else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
+				console.log("3 pressed!");
+				msg.channel.send("{God this is the best Zelda game in the world}");
+				bestGame();
 			}
 		}
 		})

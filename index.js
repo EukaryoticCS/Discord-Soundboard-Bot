@@ -32,7 +32,6 @@ async function connectToChannel() {
 	}
 }
 
-
 /*This is our Bruh Command */
 async function bruh() {
 	//join
@@ -61,6 +60,7 @@ client.on("messageCreate", async (msg) => {
 	if(msg.content.startsWith(`${prefix}leave`)) {
 		(await connectToChannel()).destroy();
 	}
+
 
 	if(msg.content.startsWith(`${prefix}bruh`)){
 		bruh();
@@ -98,7 +98,7 @@ client.on("messageCreate", async (msg) => {
 
 	if(msg.content.startsWith(`${prefix}play music`) ){
 		const connection = await connectToChannel();
-
+    
 		let str = msg.content;
 		let substrings = str.split(' ')[2];///substing is the Url of the video 
 		console.log(substrings);
@@ -143,5 +143,4 @@ client.on("messageCreate", async (msg) => {
 }
 })
 /*end of messageCreate*/
-
 client.login(process.env.TOKEN)

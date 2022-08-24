@@ -2,7 +2,10 @@ import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from '
 import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
+import mongoose from 'mongoose';
 dotenv.config()
+
+import testSchema from './test-schema.js';
 
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
 
@@ -51,8 +54,16 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
-client.on('ready', () =>  {
+client.on('ready', async () =>  {
 	console.log("Good Morning Master")
+
+	await mongoose.connect(process.env.MONGO_URI || '', {
+		keepAlive: true
+	})
+
+	await new testSchema({
+		message: 'hello world',
+	}).save()
 
 	client.on("messageCreate", async (msg) => {
 		if(msg.content.startsWith(`${prefix}join`) )  {
@@ -107,7 +118,7 @@ client.on('ready', () =>  {
 			const connection = await connectToChannel();
 
 			let str = msg.content;
-			let substrings = str.split(' ')[2];///substing is the Url of the video 
+			let substrings = str.split(' ')[2];///substring is the Url of the video 
 			
 			console.log(substrings);
 

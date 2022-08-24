@@ -32,7 +32,8 @@ async function connectToChannel() {
 	}
 }
 
-//Pull commands out to methods or separate files
+
+/*This is our Bruh Command */
 async function bruh() {
 	//join
 	const connection = await connectToChannel();
@@ -51,53 +52,37 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
-client.on('ready', () =>  {
-	console.log("Good Morning Master")
-});
-
-async function ping(){
-	msg.reply({content: "https://en.wikipedia.org/wiki/Pong"})
-}
-
-async function gay(){
-	msg.reply({content: "frik off wit dat gay stuff"})
-}
-
-async function bestGame(){
-	msg.reply({content: "https://www.zeldadungeon.net/wiki/Spirit_Tracks_Story :train2:"})
-}
-
+/* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if(msg.content.startsWith(`${prefix}join`)) {
 		connectToChannel();
 	}
 
-	if (msg.content.startsWith(`${prefix}leave`)) {
+	if(msg.content.startsWith(`${prefix}leave`)) {
 		(await connectToChannel()).destroy();
 	}
 
-	if (msg.content.startsWith(`${prefix}bruh`)){
+	if(msg.content.startsWith(`${prefix}bruh`)){
 		bruh();
 	}
-	///https://youtu.be/Ta2CK4ByGsw
+	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
 
-	if  (msg.content.startsWith(`${prefix}boowomp`)) {
+	if(msg.content.startsWith(`${prefix}boowomp`)) {
 		//join
 		const connection = await connectToChannel();
 
-		//find yt link, create audio file, create player
+		//Boowomp youtube link
 		const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-		//play sound (boowomp)
+		//Let's Play boowomp
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
 	}
 
-	if  (msg.content.startsWith(`${prefix}mario Scream`) ){
-		//join
+	if(msg.content.startsWith(`${prefix}mario Scream`) ){
 		const connection = await connectToChannel();
 
 		//find yt link, create audio file, create player
@@ -105,21 +90,20 @@ client.on("messageCreate", async (msg) => {
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
 
-		//play sound (mario scream)
+		//Mario Scream sound now plays
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
 	}
 
-	if (msg.content.startsWith(`${prefix}play music`) ){
-		//join
+	if(msg.content.startsWith(`${prefix}play music`) ){
 		const connection = await connectToChannel();
 
 		let str = msg.content;
 		let substrings = str.split(' ')[2];///substing is the Url of the video 
 		console.log(substrings);
 
-		//find yt link, create audio file, create player
+		//Youtube Link Player
 		const stream = await play.stream(substrings, {filter: "audioonly"})
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, {inputType: stream.type});
@@ -129,16 +113,6 @@ client.on("messageCreate", async (msg) => {
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
 	}
-
-	if (msg.content === prefix + "ping") 
-		ping()
-
-	if (msg.content === "goodGame") 
-		bestGame()
-
-	if (msg.author.id === '642942437299585066' && msg.content === 'gay') {
-		gay();
-	};
 
 	if(msg.content.startsWith(`${prefix}soundboard`)) {
 		msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
@@ -157,32 +131,17 @@ client.on("messageCreate", async (msg) => {
 			}
 			else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
 				console.log("2 pressed!");
-				msg.channel.send("{I've ponged}");
-				ping();
+				msg.channel.send("Psych is a banger show");
 			}
 			else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
 				console.log("3 pressed!");
-				msg.channel.send("{God this is the best Zelda game in the world}");
-				bestGame();
+				msg.channel.send("God I love Spirit Tracks");
 			}
 		}
 		})
 	});
 }
 })
-
-// Set the prefix 
-// client.on("messageCreate", (message) => {
-// 	// Exit and stop if it's not there
-// 	if (!message.content.startsWith(prefix)) return;
-
-// 	if (message.content.startsWith(`${prefix}ping`)) {
-// 		message.channel.send("pong!");
-// 	} else
-
-// 	if (message.content.startsWith(`${prefix}yo`)) {
-// 		message.channel.send("momma!");
-// 	}
-// });
+/*end of messageCreate*/
 
 client.login(process.env.TOKEN)

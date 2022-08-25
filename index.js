@@ -84,7 +84,6 @@ async function soundBoard(msg) {
 		console.log(server.guildID + ' is your guildID');
 		for (let i = 0; i < server.commands.length; i++) {
 			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
-			console.log(server.commands[i].relatedEmoji + " " + server.commands[i].commandName);
 		}
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {

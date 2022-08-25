@@ -73,6 +73,7 @@ async function bruh() {
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
+	//////////Syntax for setting up a new server/updating commands?////////////
 	// var test = await new testSchema({
 	// 	guildID: "1006328808401555527",
 	// 	prefix: prefix,
@@ -89,9 +90,10 @@ async function soundBoard(msg) {
 	// 		}
 	// ]
 	// }).save()
+	///////////////////////////////////////////////////////////////////////////
 
 	server.findOne({ prefix: "!" }, function (err, server) {
-		if (err) return handleError(err)
+		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 		for (let i = 0; i < server.commands.length; i++) {
 			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");

@@ -26,7 +26,6 @@
     "dotenv": "^16.0.1",
     "mongoose": "^6.5.2",
     "play-dl": "^1.9.5",
-    "sodium-native": "^3.4.1",
-    "wokcommands": "^1.5.3"
+    "sodium-native": "^3.4.1"
   }
 }

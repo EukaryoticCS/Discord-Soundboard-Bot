@@ -57,13 +57,37 @@ async function bruh() {
 client.on('ready', async () =>  {
 	console.log("Good Morning Master")
 
-	await mongoose.connect(process.env.MONGO_URI || '', {
+	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
 		keepAlive: true
 	})
 
-	await new testSchema({
-		message: 'hello world',
-	}).save()
+	// var test = await new testSchema({
+	// 	guildID: "1006328808401555527",
+	// 	prefix: prefix,
+	// 	commands: {
+	// 		commandName: "Bruh",
+	// 		relatedEmoji: "pensive",
+	// 		soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
+	// 	}
+	// }).save()
+
+	const mySchema = new mongoose.Schema({
+		guildID: String,
+		prefix: String,
+		commands: {
+			commandName: String,
+			relatedEmoji: String,
+			soundURL: String
+		}
+	})
+
+	var server = mongoose.model('server', mySchema, 'testing');
+
+	server.findOne({ prefix: "!" }, function (err, server) {
+		if (err) return handleError(err)
+		console.log(server.guildID)
+		console.log(server.guildID + ' is your guildID');
+	})
 
 	client.on("messageCreate", async (msg) => {
 		if(msg.content.startsWith(`${prefix}join`) )  {
@@ -151,7 +175,7 @@ client.on("messageCreate", async (msg) => {
 		sentMessage.react('4️⃣')
 		sentMessage.react('5️⃣')
 		client.on('messageReactionAdd', (reaction, author) => {
-		if(reaction.message.author == "1006684796983971900"){
+		if(reaction.message.author == "1006684796983971900"){ //Makes sure the bot sent the message; reacting with 1️⃣ on another message won't trigger the command
 			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
 			if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
 			console.log("1 pressed!");

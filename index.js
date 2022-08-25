@@ -104,35 +104,15 @@ client.on('ready', async () =>  {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	if(msg.content.startsWith(`${prefix}join`)) {
+	if(msg.content.toLowerCase().startsWith(`${prefix}join`)) {
 		connectToChannel();
 	}
 
-	if(msg.content.startsWith(`${prefix}leave`)) {
+	if(msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
 		(await connectToChannel()).destroy();
 	}
 
-	if(msg.content.startsWith(`${prefix}bruh`)){
-		bruh();
-	}
-	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
-
-	if(msg.content.startsWith(`${prefix}boowomp`)) {
-		//join
-		const connection = await connectToChannel();
-
-		//Boowomp youtube link
-		const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
-
-		//Let's Play boowomp
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
-	}
-
-	if(msg.content.startsWith(`${prefix}mario Scream`) ){
+	if(msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
 		const connection = await connectToChannel();
 
 		//find yt link, create audio file, create player
@@ -146,7 +126,7 @@ client.on("messageCreate", async (msg) => {
 		connection.subscribe(player);
 	}
 
-	if(msg.content.startsWith(`${prefix}play music`) ){
+	if(msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
 		const connection = await connectToChannel();
     
 		let str = msg.content;
@@ -164,8 +144,9 @@ client.on("messageCreate", async (msg) => {
 		connection.subscribe(player);
 	}
 
-	if(msg.content.startsWith(`${prefix}soundboard`)) {
+	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);
+		
 	// 	msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
 	// 		sentMessage.react('1️⃣')
 	// 	sentMessage.react('2️⃣')

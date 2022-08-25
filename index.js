@@ -5,25 +5,12 @@ import play from 'play-dl';
 import mongoose from 'mongoose';
 dotenv.config()
 
+////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
+var server = testSchema
+///////////////////////////////////////////////////////
 
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
-
-////////////// Setup stuff for Mongo //////////////////
-const mySchema = new mongoose.Schema({
-	guildID: String,
-	prefix: String,
-	commands: [
-	{
-		commandName: String,
-		relatedEmoji: String,
-		soundURL: String
-	}
-]
-})
-
-var server = mongoose.model('server', mySchema, 'testing');
-////////////////////////////////////////////////////////
 
 const client = new DiscordJS.Client({
 	intents:[

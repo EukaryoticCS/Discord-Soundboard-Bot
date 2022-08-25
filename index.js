@@ -57,6 +57,8 @@ async function bruh() {
 client.on('ready', async () =>  {
 	console.log("Good Morning Master")
 
+	var soundboardString = "Click a reaction to play the corresponding sound:\n"
+
 	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
 		keepAlive: true
 	})
@@ -64,11 +66,18 @@ client.on('ready', async () =>  {
 	// var test = await new testSchema({
 	// 	guildID: "1006328808401555527",
 	// 	prefix: prefix,
-	// 	commands: {
-	// 		commandName: "Bruh",
-	// 		relatedEmoji: "pensive",
-	// 		soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
-	// 	}
+	// 	commands: [
+	// 		{
+	// 			commandName: "Bruh",
+	// 			relatedEmoji: "pensive",
+	// 			soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
+	// 		}, 
+	// 		{
+	// 			commandName: "Boowomp",
+	// 			relatedEmoji: "slight_frown",
+	// 			soundURL: "www.youtube.com"
+	// 		}
+	// ]
 	// }).save()
 
 	const mySchema = new mongoose.Schema({
@@ -85,26 +94,15 @@ client.on('ready', async () =>  {
 
 	server.findOne({ prefix: "!" }, function (err, server) {
 		if (err) return handleError(err)
-		console.log(server.guildID)
 		console.log(server.guildID + ' is your guildID');
-	})
-
-	client.on("messageCreate", async (msg) => {
-		if(msg.content.startsWith(`${prefix}join`) )  {
-			connectToChannel();
+		for (let i = 0; i < Object.keys(server.commands.commandName).length; i++) {
+			soundboardString = soundboardString.concat(":", server.commands.relatedEmoji[i], ": " + server.commands.commandName[i], "\n");
+			console.log(server.commands.relatedEmoji[i] + " " + server.commands.commandName[i]);
 		}
-
-		if (msg.content.startsWith(`${prefix}leave`) ) {
-			(await connectToChannel()).destroy();
-		}
-			
-
-		if (msg.content.startsWith(`${prefix}bruh`) ){
-			bruh();
-		}
-		///https://youtu.be/Ta2CK4ByGsw
+		console.log(soundboardString);
 	})
 })
+
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if(msg.content.startsWith(`${prefix}join`)) {

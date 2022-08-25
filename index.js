@@ -9,6 +9,22 @@ import testSchema from './test-schema.js';
 
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
 
+////////////// Setup stuff for Mongo //////////////////
+const mySchema = new mongoose.Schema({
+	guildID: String,
+	prefix: String,
+	commands: [
+	{
+		commandName: String,
+		relatedEmoji: String,
+		soundURL: String
+	}
+]
+})
+
+var server = mongoose.model('server', mySchema, 'testing');
+////////////////////////////////////////////////////////
+
 const client = new DiscordJS.Client({
 	intents:[
 		IntentsBitField.Flags.Guilds,
@@ -54,14 +70,8 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
-client.on('ready', async () =>  {
-	console.log("Good Morning Master")
-
+async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
-
-	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
-		keepAlive: true
-	})
 
 	// var test = await new testSchema({
 	// 	guildID: "1006328808401555527",
@@ -80,27 +90,28 @@ client.on('ready', async () =>  {
 	// ]
 	// }).save()
 
-	const mySchema = new mongoose.Schema({
-		guildID: String,
-		prefix: String,
-		commands: {
-			commandName: String,
-			relatedEmoji: String,
-			soundURL: String
-		}
-	})
-
-	var server = mongoose.model('server', mySchema, 'testing');
-
 	server.findOne({ prefix: "!" }, function (err, server) {
 		if (err) return handleError(err)
 		console.log(server.guildID + ' is your guildID');
-		for (let i = 0; i < Object.keys(server.commands.commandName).length; i++) {
-			soundboardString = soundboardString.concat(":", server.commands.relatedEmoji[i], ": " + server.commands.commandName[i], "\n");
-			console.log(server.commands.relatedEmoji[i] + " " + server.commands.commandName[i]);
+		for (let i = 0; i < server.commands.length; i++) {
+			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
+			console.log(server.commands[i].relatedEmoji + " " + server.commands[i].commandName);
 		}
 		console.log(soundboardString);
+		msg.channel.send(soundboardString).then(sentMessage => {
+			sentMessage.react("1️⃣")
+		}
+			) ;
 	})
+}
+
+client.on('ready', async () =>  {
+	console.log("Good Morning Master")
+
+	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
+		keepAlive: true
+	})
+
 })
 
 /* This is a big messageCreate function for join and leave */
@@ -166,31 +177,32 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	if(msg.content.startsWith(`${prefix}soundboard`)) {
-		msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
-			sentMessage.react('1️⃣')
-		sentMessage.react('2️⃣')
-		sentMessage.react('3️⃣')
-		sentMessage.react('4️⃣')
-		sentMessage.react('5️⃣')
-		client.on('messageReactionAdd', (reaction, author) => {
-		if(reaction.message.author == "1006684796983971900"){ //Makes sure the bot sent the message; reacting with 1️⃣ on another message won't trigger the command
-			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-			if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
-			console.log("1 pressed!");
-			msg.channel.send("{Bruh sound effect here}");
-			bruh();
-			}
-			else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
-				console.log("2 pressed!");
-				msg.channel.send("Psych is a banger show");
-			}
-			else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
-				console.log("3 pressed!");
-				msg.channel.send("God I love Spirit Tracks");
-			}
-		}
-		})
-	});
+		soundBoard(msg);
+	// 	msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
+	// 		sentMessage.react('1️⃣')
+	// 	sentMessage.react('2️⃣')
+	// 	sentMessage.react('3️⃣')
+	// 	sentMessage.react('4️⃣')
+	// 	sentMessage.react('5️⃣')
+		// client.on('messageReactionAdd', (reaction, author) => {
+		// if(reaction.message.author == "1006684796983971900"){ //Makes sure the bot sent the message; reacting with 1️⃣ on another message won't trigger the command
+		// 	//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+		// 	if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
+		// 	console.log("1 pressed!");
+		// 	msg.channel.send("{Bruh sound effect here}");
+		// 	bruh();
+		// 	}
+		// 	else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
+		// 		console.log("2 pressed!");
+		// 		msg.channel.send("Psych is a banger show");
+		// 	}
+		// 	else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
+		// 		console.log("3 pressed!");
+		// 		msg.channel.send("God I love Spirit Tracks");
+		// 	}
+		// }
+		// })
+	// });
 }
 })
 /*end of messageCreate*/

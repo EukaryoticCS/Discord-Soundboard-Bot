@@ -1,13 +1,14 @@
-import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js'
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
-import dotenv from 'dotenv'
+import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js';
+import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice';
+import dotenv from 'dotenv';
 import play from 'play-dl';
 import mongoose from 'mongoose';
+import emojione from 'emojione';
 dotenv.config()
 
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
-var server = testSchema
+var server = testSchema;
 ///////////////////////////////////////////////////////
 
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
@@ -57,6 +58,20 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
+async function createSound(commandName, relatedEmoji, soundURL) {
+	console.log("Creating sound");
+	var foundServer = server.findOne({ guildID: "1006328808401555527"}, function (err, server) {
+		if (err) return handleError(err) //Potentially not needed?
+		}
+	)
+	foundServer.commands.push({
+		commandName: commandName,
+		relatedEmoji: relatedEmoji,
+		soundURL: soundURL,
+	}
+	)
+}
+
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
@@ -73,23 +88,27 @@ async function soundBoard(msg) {
 	// 		{
 	// 			commandName: "Boowomp",
 	// 			relatedEmoji: "slight_frown",
-	// 			soundURL: "www.youtube.com"
+	// 			soundURL: "https://youtu.be/FHQC6BsW9AY"
 	// 		}
 	// ]
 	// }).save()
 	///////////////////////////////////////////////////////////////////////////
 
-	server.findOne({ prefix: "!" }, function (err, server) {
+	server.findOne({ guildID: "1006328808401555527" }, function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
+
 		for (let i = 0; i < server.commands.length; i++) {
 			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
 		}
+
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {
-			sentMessage.react("1️⃣")
+			for (let i = 0; i < server.commands.length; i++) {
+				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
+			}
 		}
-			) ;
+		);
 	})
 }
 
@@ -99,7 +118,6 @@ client.on('ready', async () =>  {
 	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
 		keepAlive: true
 	})
-
 })
 
 /* This is a big messageCreate function for join and leave */
@@ -162,6 +180,13 @@ client.on("messageCreate", async (msg) => {
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
+	}
+
+	if(msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+		var commandName = "asdf";
+		var relatedEmoji = "eggplant";
+		var soundURL = "https://youtube.com/";
+		createSound(commandName, relatedEmoji, soundURL);
 	}
 
 	if(msg.content.startsWith(`${prefix}soundboard`)) {

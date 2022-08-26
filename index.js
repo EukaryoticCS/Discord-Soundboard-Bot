@@ -1,6 +1,6 @@
-import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js';
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice';
-import dotenv from 'dotenv';
+import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
+import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
 import emojione from 'emojione';
@@ -23,6 +23,7 @@ const client = new DiscordJS.Client({
 	]
 })
 
+
 async function connectToChannel() {
 	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
 	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
@@ -37,6 +38,24 @@ async function connectToChannel() {
 		connection.destroy();
 		throw error;
 	}
+}
+
+async function playMusic() {
+		const connection = await connectToChannel();
+    
+		let str = msg.content;
+		let substrings = str.split(' ')[2];///substing is the Url of the video 
+		console.log(substrings);
+
+		//Youtube Link Player
+		const stream = await play.stream(substrings, {filter: "audioonly"})
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+		//play sound (play youtube music)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
 }
 
 /*This is our Bruh Command */
@@ -57,7 +76,6 @@ async function bruh() {
 	//leave
 	//Make the bot leave the vc after sound has played
 }
-
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
 	var foundServer = server.findOne({ guildID: "1006328808401555527"}, function (err, server) {
@@ -72,8 +90,102 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 	)
 }
 
+async function boowomp() {
+	//join
+	const connection = await connectToChannel();
+
+	//find yt link, create audio file, create player
+	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+	//play sound (bruh)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
+
+	//leave
+	//Make the bot leave the vc after sound has played
+}
+
+async function marioScream() {
+	//join
+	const connection = await connectToChannel();
+
+	//find yt link, create audio file, create player
+	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+	//play sound (bruh)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
+
+	//leave
+	//Make the bot leave the vc after sound has played
+}
+
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
+
+	server.findOne({ guildID: "1006328808401555527" }, function (err, server) {
+		if (err) return handleError(err) //Potentially not needed?
+		console.log(server.guildID + ' is your guildID');
+
+		for (let i = 0; i < server.commands.length; i++) {
+			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
+		}
+
+		console.log(soundboardString);
+		msg.channel.send(soundboardString).then(sentMessage => {
+			for (let i = 0; i < server.commands.length; i++) {
+				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
+			}
+		}
+		)
+
+	client.on('messageReactionAdd', (reaction) => {
+		if(reaction.message.author == "1006684796983971900"){
+			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+			for (let i = 0; i < server.commands.length; i++) {
+				if(reaction.message.reactions.cache.get(":" + server.commands[i].relatedEmoji + ":").count >= 2) {
+					console.log("Button pressed!");
+					msg.channel.send("Button pressed!");
+					
+				}
+			}
+			
+
+
+
+			if(reaction.message.reactions.cache.get('').count >= 2){
+			console.log("1 pressed!");
+			msg.channel.send("heck yeah");
+			bruh();
+			}
+			else if(reaction.message.reactions.cache.get('') && reaction.message.reactions.cache.get('2️⃣').count >= 2){
+				console.log('cry')
+				msg.channel.send("i cry")
+				boowomp();
+			}
+			else if(reaction.message.reactions.cache.get('3️⃣') && reaction.message.reactions.cache.get('3️⃣').count >= 2){
+				console.log('i love jesus')
+				msg.channel.send("i love jesus")
+				marioScream();
+			}
+			else if(reaction.message.reactions.cache.get('4️⃣') && reaction.message.reactions.cache.get('4️⃣').count >= 2){
+				console.log('Whats up my naga')
+				msg.channel.send("Whats up my naga")
+			}
+			else if(reaction.message.reactions.cache.get('5️⃣') && reaction.message.reactions.cache.get('5️⃣').count >= 2){
+				console.log('@Dom#3517 is a bitch')
+				msg.channel.send("@Dom#3517 is a bitch")
+			}
+		}
+		})
+	});
+}
 
 	//////////Syntax for setting up a new server/updating commands?////////////
 	// var test = await new testSchema({
@@ -94,23 +206,6 @@ async function soundBoard(msg) {
 	// }).save()
 	///////////////////////////////////////////////////////////////////////////
 
-	server.findOne({ guildID: "1006328808401555527" }, function (err, server) {
-		if (err) return handleError(err) //Potentially not needed?
-		console.log(server.guildID + ' is your guildID');
-
-		for (let i = 0; i < server.commands.length; i++) {
-			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
-		}
-
-		console.log(soundboardString);
-		msg.channel.send(soundboardString).then(sentMessage => {
-			for (let i = 0; i < server.commands.length; i++) {
-				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
-			}
-		}
-		);
-	})
-}
 
 client.on('ready', async () =>  {
 	console.log("Good Morning Master")
@@ -130,36 +225,24 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
+	if(msg.content.toLowerCase().startsWith(`${prefix}bruh`)){
+		bruh();
+	}
+	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
+
+	if(msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
+		boowomp();
+	}
+		
 	if(msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
-		const connection = await connectToChannel();
-
-		//find yt link, create audio file, create player
-		const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
-
-		//Mario Scream sound now plays
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
+	marioScream();
+	}
+	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`) ){
+		soundBoard(msg);
 	}
 
 	if(msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
-		const connection = await connectToChannel();
-    
-		let str = msg.content;
-		let substrings = str.split(' ')[2];///substing is the Url of the video 
-		console.log(substrings);
-
-		//Youtube Link Player
-		const stream = await play.stream(substrings, {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
-
-		//play sound (play youtube music)
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
+		
 	}
 
 	if(msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
@@ -172,32 +255,7 @@ client.on("messageCreate", async (msg) => {
 	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 
 		soundBoard(msg);
-		
-	// 	msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
-	// 		sentMessage.react('1️⃣')
-	// 	sentMessage.react('2️⃣')
-	// 	sentMessage.react('3️⃣')
-	// 	sentMessage.react('4️⃣')
-	// 	sentMessage.react('5️⃣')
-		// client.on('messageReactionAdd', (reaction, author) => {
-		// if(reaction.message.author == "1006684796983971900"){ //Makes sure the bot sent the message; reacting with 1️⃣ on another message won't trigger the command
-		// 	//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-		// 	if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
-		// 	console.log("1 pressed!");
-		// 	msg.channel.send("{Bruh sound effect here}");
-		// 	bruh();
-		// 	}
-		// 	else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
-		// 		console.log("2 pressed!");
-		// 		msg.channel.send("Psych is a banger show");
-		// 	}
-		// 	else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
-		// 		console.log("3 pressed!");
-		// 		msg.channel.send("God I love Spirit Tracks");
-		// 	}
-		// }
-		// })
-	// });
+
 }
 })
 /*end of messageCreate*/

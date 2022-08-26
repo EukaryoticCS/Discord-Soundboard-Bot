@@ -152,6 +152,10 @@ async function soundBoard(msg) {
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {
 			sentMessage.react("1️⃣")
+			sentMessage.react("2️⃣")
+			sentMessage.react("3️⃣")
+			sentMessage.react("4️⃣")
+			sentMessage.react("5️⃣")
 		}
 			) ;
 	})

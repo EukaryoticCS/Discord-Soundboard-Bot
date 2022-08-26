@@ -95,8 +95,6 @@ async function marioScream() {
 
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
-
-
 	client.on('messageReactionAdd', (reaction) => {
 		if(reaction.message.author == "1006684796983971900"){
 			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
@@ -178,19 +176,20 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
-	if(msg.content.startsWith(`${prefix}bruh`)){
+	if(msg.content.toLowerCase().startsWith(`${prefix}bruh`)){
 		bruh();
 	}
 	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
 
-	if(msg.content.startsWith(`${prefix}boowomp`)) {
+	if(msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
 		boowomp();
 	}
-
-	if(msg.content.startsWith(`${prefix}mario Scream`) ){
 		
 	if(msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
 	marioScream();
+	}
+	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`) ){
+		soundBoard(msg);
 	}
 
 	if(msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
@@ -210,7 +209,7 @@ client.on("messageCreate", async (msg) => {
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
 	}
-}
+
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

@@ -1,5 +1,5 @@
 import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
@@ -55,26 +55,12 @@ async function playMusic(URL) {
 	player.play(resource);
 	player.on('error', (error) => console.error(error)); //Just in case
 	connection.subscribe(player);
+
+	player.on(AudioPlayerStatus.Idle, async () => {
+		connection.destroy();
+	})
 }
 
-/*This is our Bruh Command */
-async function bruh() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
-}
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
@@ -88,42 +74,6 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 			}
 		})
 	}
-}
-
-async function boowomp() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
-}
-
-async function marioScream() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
 }
 
 async function soundBoard(msg) {
@@ -161,6 +111,18 @@ async function soundBoard(msg) {
 	});
 }
 
+/*This is our Bruh Command */
+async function bruh() {
+	playMusic("https://www.youtube.com/watch?v=2ZIpFytCSVc");
+}
+
+async function boowomp() {
+	playMusic("https://youtu.be/Ta2CK4ByGsw");
+}
+
+async function marioScream() {
+	playMusic("https://www.youtube.com/watch?v=TCW72WQdQ8A");
+}
 
 client.on('ready', async () => {
 	console.log("Good Morning Master")
@@ -204,18 +166,19 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
-		bruh();
-	}
-	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
+	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
+	// 	bruh();
+	// }
+	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
-		boowomp();
-	}
+	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
+	// 	boowomp();
+	// }
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
-		marioScream();
-	}
+	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
+	// 	marioScream();
+	// }
+
 	if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);
 	}

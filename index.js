@@ -14,7 +14,7 @@ var server = testSchema;
 const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
 
 const client = new DiscordJS.Client({
-	intents:[
+	intents: [
 		IntentsBitField.Flags.Guilds,
 		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.MessageContent,
@@ -22,7 +22,6 @@ const client = new DiscordJS.Client({
 		IntentsBitField.Flags.GuildVoiceStates,
 	]
 })
-
 
 async function connectToChannel() {
 	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
@@ -40,22 +39,22 @@ async function connectToChannel() {
 	}
 }
 
-async function playMusic() {
-		const connection = await connectToChannel();
-    
-		let str = msg.content;
-		let substrings = str.split(' ')[2];///substing is the Url of the video 
-		console.log(substrings);
+async function playMusic(URL) {
+	const connection = await connectToChannel();
 
-		//Youtube Link Player
-		const stream = await play.stream(substrings, {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	// let str = msg.content;
+	// let substrings = str.split(' ')[2];///substing is the Url of the video 
+	// console.log(substrings);
 
-		//play sound (play youtube music)
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
+	//Youtube Link Player
+	const stream = await play.stream(URL, { filter: "audioonly" })
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, { inputType: stream.type });
+
+	//play sound (play youtube music)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
 }
 
 /*This is our Bruh Command */
@@ -64,9 +63,9 @@ async function bruh() {
 	const connection = await connectToChannel();
 
 	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", {filter: "audioonly"})
+	const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", { filter: "audioonly" })
 	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
 	//play sound (bruh)
 	player.play(resource);
@@ -78,16 +77,17 @@ async function bruh() {
 }
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
-	var foundServer = server.findOne({ guildID: "1006328808401555527"}, function (err, server) {
-		if (err) return handleError(err) //Potentially not needed?
-		}
-	)
-	foundServer.commands.push({
-		commandName: commandName,
-		relatedEmoji: relatedEmoji,
-		soundURL: soundURL,
+	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
+		await server.updateOne({ guildID: "1006328808401555527" }, {
+			$push: {
+				commands: {
+					"commandName": commandName,
+					"relatedEmoji": relatedEmoji,
+					"soundURL": soundURL,
+				}
+			}
+		})
 	}
-	)
 }
 
 async function boowomp() {
@@ -95,9 +95,9 @@ async function boowomp() {
 	const connection = await connectToChannel();
 
 	//find yt link, create audio file, create player
-	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", { filter: "audioonly" })
 	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
 	//play sound (bruh)
 	player.play(resource);
@@ -113,9 +113,9 @@ async function marioScream() {
 	const connection = await connectToChannel();
 
 	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", { filter: "audioonly" })
 	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+	const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
 	//play sound (bruh)
 	player.play(resource);
@@ -145,49 +145,31 @@ async function soundBoard(msg) {
 		}
 		)
 
-	client.on('messageReactionAdd', (reaction) => {
-		if(reaction.message.author == "1006684796983971900"){
-			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-			for (let i = 0; i < server.commands.length; i++) {
-				if(reaction.message.reactions.cache.get(":" + server.commands[i].relatedEmoji + ":").count >= 2) {
-					console.log("Button pressed!");
-					msg.channel.send("Button pressed!");
-					
+		client.on('messageReactionAdd', (reaction, user) => {
+			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
+				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+				for (let i = 0; i < server.commands.length; i++) {
+					if (reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")) &&
+						reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")).count >= 2) {
+						console.log("Button pressed!");
+						msg.channel.send("Button pressed!");
+						playMusic(server.commands[i].soundURL);
+					}
 				}
 			}
-			
-
-
-
-			if(reaction.message.reactions.cache.get('').count >= 2){
-			console.log("1 pressed!");
-			msg.channel.send("heck yeah");
-			bruh();
-			}
-			else if(reaction.message.reactions.cache.get('') && reaction.message.reactions.cache.get('2️⃣').count >= 2){
-				console.log('cry')
-				msg.channel.send("i cry")
-				boowomp();
-			}
-			else if(reaction.message.reactions.cache.get('3️⃣') && reaction.message.reactions.cache.get('3️⃣').count >= 2){
-				console.log('i love jesus')
-				msg.channel.send("i love jesus")
-				marioScream();
-			}
-			else if(reaction.message.reactions.cache.get('4️⃣') && reaction.message.reactions.cache.get('4️⃣').count >= 2){
-				console.log('Whats up my naga')
-				msg.channel.send("Whats up my naga")
-			}
-			else if(reaction.message.reactions.cache.get('5️⃣') && reaction.message.reactions.cache.get('5️⃣').count >= 2){
-				console.log('@Dom#3517 is a bitch')
-				msg.channel.send("@Dom#3517 is a bitch")
-			}
-		}
 		})
 	});
 }
 
-	//////////Syntax for setting up a new server/updating commands?////////////
+
+client.on('ready', async () => {
+	console.log("Good Morning Master")
+
+	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
+		keepAlive: true
+	})
+
+	// ////////Syntax for setting up a new server/updating commands?////////////
 	// var test = await new testSchema({
 	// 	guildID: "1006328808401555527",
 	// 	prefix: prefix,
@@ -201,62 +183,53 @@ async function soundBoard(msg) {
 	// 			commandName: "Boowomp",
 	// 			relatedEmoji: "slight_frown",
 	// 			soundURL: "https://youtu.be/FHQC6BsW9AY"
-	// 		}
+	// 		},
+	// 		{
+	// 			commandName: "Rickroll", 
+	// 			relatedEmoji: "smiling_imp",
+	// 			soundURL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+	// 		},
 	// ]
 	// }).save()
-	///////////////////////////////////////////////////////////////////////////
-
-
-client.on('ready', async () =>  {
-	console.log("Good Morning Master")
-
-	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
-		keepAlive: true
-	})
+	// /////////////////////////////////////////////////////////////////////////
 })
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	if(msg.content.toLowerCase().startsWith(`${prefix}join`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}join`)) {
 		connectToChannel();
 	}
 
-	if(msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
 		(await connectToChannel()).destroy();
 	}
 
-	if(msg.content.toLowerCase().startsWith(`${prefix}bruh`)){
+	if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
 		bruh();
 	}
 	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
 
-	if(msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
 		boowomp();
 	}
-		
-	if(msg.content.toLowerCase().startsWith(`${prefix}mario Scream`) ){
-	marioScream();
+
+	if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
+		marioScream();
 	}
-	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`) ){
+	if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);
 	}
 
-	if(msg.content.toLowerCase().startsWith(`${prefix}play music`) ){
-		
+	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
+		playMusic("https://youtu.be/Ta2CK4ByGsw")
 	}
 
-	if(msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
-		var commandName = "asdf";
-		var relatedEmoji = "eggplant";
-		var soundURL = "https://youtube.com/";
+	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+		var commandName = "";
+		var relatedEmoji = "";
+		var soundURL = "";
 		createSound(commandName, relatedEmoji, soundURL);
 	}
-
-	if(msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
-
-		soundBoard(msg);
-
-}
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

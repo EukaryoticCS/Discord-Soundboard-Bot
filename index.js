@@ -161,7 +161,6 @@ async function soundBoard(msg) {
 	});
 }
 
-
 client.on('ready', async () => {
 	console.log("Good Morning Master")
 
@@ -225,10 +224,13 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
-		var commandName = "";
-		var relatedEmoji = "";
-		var soundURL = "";
+		let str = msg.content;
+		let commandName = str.split(' ',4)[1];
+		let relatedEmoji = str.split(' ',4)[2];
+		let soundURL = str.split(' ',4)[3];
 		createSound(commandName, relatedEmoji, soundURL);
+		console.log(createSound);
+
 	}
 })
 /*end of messageCreate*/

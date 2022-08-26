@@ -1,4 +1,4 @@
-import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel } from 'discord.js'
+import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
@@ -15,6 +15,7 @@ const client = new DiscordJS.Client({
 		IntentsBitField.Flags.GuildVoiceStates,
 	]
 })
+
 
 async function connectToChannel() {
 	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
@@ -51,6 +52,41 @@ async function bruh() {
 	//Make the bot leave the vc after sound has played
 }
 
+async function boowomp() {
+	//join
+	const connection = await connectToChannel();
+
+	//find yt link, create audio file, create player
+	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+	//play sound (bruh)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
+
+	//leave
+	//Make the bot leave the vc after sound has played
+}
+async function marioScream() {
+	//join
+	const connection = await connectToChannel();
+
+	//find yt link, create audio file, create player
+	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
+	const player = createAudioPlayer();
+	const resource = createAudioResource(stream.stream, {inputType: stream.type});
+
+	//play sound (bruh)
+	player.play(resource);
+	player.on('error', (error) => console.error(error)); //Just in case
+	connection.subscribe(player);
+
+	//leave
+	//Make the bot leave the vc after sound has played
+}
+
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if(msg.content.startsWith(`${prefix}join`)) {
@@ -68,32 +104,11 @@ client.on("messageCreate", async (msg) => {
 	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
 
 	if(msg.content.startsWith(`${prefix}boowomp`)) {
-		//join
-		const connection = await connectToChannel();
-
-		//Boowomp youtube link
-		const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
-
-		//Let's Play boowomp
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
+		boowomp();
 	}
 
 	if(msg.content.startsWith(`${prefix}mario Scream`) ){
-		const connection = await connectToChannel();
-
-		//find yt link, create audio file, create player
-		const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", {filter: "audioonly"})
-		const player = createAudioPlayer();
-		const resource = createAudioResource(stream.stream, {inputType: stream.type});
-
-		//Mario Scream sound now plays
-		player.play(resource);
-		player.on('error', (error) => console.error(error)); //Just in case
-		connection.subscribe(player);
+		marioScream();
 	}
 
 	if(msg.content.startsWith(`${prefix}play music`) ){
@@ -115,31 +130,42 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	if(msg.content.startsWith(`${prefix}soundboard`)) {
-		msg.channel.send("1️⃣bruh \n2️⃣boowomp  \n3️⃣wow \n4️⃣anime wow \n5️⃣Mom get the camera").then(sentMessage => {
+		msg.channel.send(":one: bruh \n:two:boowomp  \n:three:wow \n:four:anime wow \n:five:Mom get the camera").then(sentMessage => {
 			sentMessage.react('1️⃣')
 		sentMessage.react('2️⃣')
 		sentMessage.react('3️⃣')
 		sentMessage.react('4️⃣')
 		sentMessage.react('5️⃣')
-		client.on('messageReactionAdd', (reaction, author) => {
-		if(reaction.message.author == "1006684796983971900"){
-			//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-			if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
-			console.log("1 pressed!");
-			msg.channel.send("{Bruh sound effect here}");
-			bruh();
+		
+		client.on('messageReactionAdd', (reaction) => {
+			if(reaction.message.author == "1006684796983971900"){
+				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
+				if(reaction.message.reactions.cache.get('1️⃣').count >= 2){
+				console.log("1 pressed!");
+				msg.channel.send("heck yeah");
+				bruh();
+				}
+				else if(reaction.message.reactions.cache.get('2️⃣') && reaction.message.reactions.cache.get('2️⃣').count >= 2){
+					console.log('cry')
+					msg.channel.send("i cry")
+					boowomp();
+				}
+				else if(reaction.message.reactions.cache.get('3️⃣') && reaction.message.reactions.cache.get('3️⃣').count >= 2){
+					console.log('i love jesus')
+					msg.channel.send("i love jesus")
+					marioScream();
+				}
+				else if(reaction.message.reactions.cache.get('4️⃣') && reaction.message.reactions.cache.get('4️⃣').count >= 2){
+					console.log('Whats up my naga')
+					msg.channel.send("Whats up my naga")
+				}
+				else if(reaction.message.reactions.cache.get('5️⃣') && reaction.message.reactions.cache.get('5️⃣').count >= 2){
+					console.log('@Dom#3517 is a bitch')
+					msg.channel.send("@Dom#3517 is a bitch")
+				}
 			}
-			else if(reaction.message.reactions.cache.get('2️⃣').count >= 2){
-				console.log("2 pressed!");
-				msg.channel.send("Psych is a banger show");
-			}
-			else if(reaction.message.reactions.cache.get('3️⃣').count >= 2){
-				console.log("3 pressed!");
-				msg.channel.send("God I love Spirit Tracks");
-			}
-		}
-		})
-	});
+			})
+	});	
 }
 })
 /*end of messageCreate*/

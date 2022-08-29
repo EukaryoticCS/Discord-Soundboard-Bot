@@ -1,5 +1,5 @@
-import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
+import DiscordJS, { IntentsBitField } from 'discord.js'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';

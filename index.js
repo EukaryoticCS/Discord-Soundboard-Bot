@@ -46,19 +46,23 @@ async function playMusic(URL) {
 	// let substrings = str.split(' ')[2];///substing is the Url of the video 
 	// console.log(substrings);
 
-	//Youtube Link Player
-	const stream = await play.stream(URL, { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
+	try {
+		//Youtube Link Player
+		const stream = await play.stream(URL, { filter: "audioonly" })
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
-	//play sound (play youtube music)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
+		//play sound (play youtube music)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
 
-	player.on(AudioPlayerStatus.Idle, async () => {
-		connection.destroy();
-	})
+		player.on(AudioPlayerStatus.Idle, async () => {
+			connection.destroy();
+		})
+	} catch (e) {
+		console.log("Error playing sound!")
+	}
 }
 
 async function createSound(commandName, relatedEmoji, soundURL) {
@@ -74,6 +78,12 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 			}
 		})
 	}
+}
+
+async function deleteSound(commandName) {
+	await server.updateOne({ guildID: "1006328808401555527"}, {
+		$pull: {"commands": {"commandName": commandName}}
+	})
 }
 
 async function soundBoard(msg) {
@@ -158,11 +168,23 @@ client.on('ready', async () => {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	if (msg.content.toLowerCase().startsWith(`${prefix}join`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) {
+		msg.channel.send
+		("Commands: \n\n" +
+		"\`help\`: Sends this message :nerd:\n\n" +
+		"\`join\`: Joins the voice call of the user that sent it. :ear:\n" +
+		"\`leave\`: Leaves the voice call. :wave:\n\n" +
+		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
+		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
+		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n"
+		)
+	}
+	
+	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) {
 		connectToChannel();
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
 		(await connectToChannel()).destroy();
 	}
 
@@ -179,19 +201,24 @@ client.on("messageCreate", async (msg) => {
 	// 	marioScream();
 	// }
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
 		playMusic("https://youtu.be/Ta2CK4ByGsw")
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
 		var commandName = "";
 		var relatedEmoji = "";
 		var soundURL = "";
 		createSound(commandName, relatedEmoji, soundURL);
+	}
+	
+	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) {
+		var commandName = "";
+		deleteSound(commandName);
 	}
 })
 /*end of messageCreate*/

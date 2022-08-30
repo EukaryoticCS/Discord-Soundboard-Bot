@@ -1,10 +1,17 @@
-import DiscordJS, { IntentsBitField, Message, messageLink, VoiceChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
+import DiscordJS, { IntentsBitField } from 'discord.js'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
 import emojione from 'emojione';
-dotenv.config()
+dotenv.config();
+
+//We could store the ID in a constant?
+const NeumontServerID = "1006328808401555527";
+const NeumontVoiceID = "1006328808917438547";
+
+const EukaryoticServerID = "1010406994332627026";
+const EukaryoticVoiceID = "1010406995083399212";
 
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
@@ -24,8 +31,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
-	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
+	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
+	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -46,39 +53,29 @@ async function playMusic(URL) {
 	// let substrings = str.split(' ')[2];///substing is the Url of the video 
 	// console.log(substrings);
 
-	//Youtube Link Player
-	const stream = await play.stream(URL, { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
+	try {
+		//Youtube Link Player
+		const stream = await play.stream(URL, { filter: "audioonly" })
+		const player = createAudioPlayer();
+		const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
-	//play sound (play youtube music)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
+		//play sound (play youtube music)
+		player.play(resource);
+		player.on('error', (error) => console.error(error)); //Just in case
+		connection.subscribe(player);
+
+		player.on(AudioPlayerStatus.Idle, async () => {
+			connection.destroy();
+		})
+	} catch (e) {
+		console.log("Error playing sound!")
+	}
 }
 
-/*This is our Bruh Command */
-async function bruh() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=2ZIpFytCSVc", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
-}
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
-		await server.updateOne({ guildID: "1006328808401555527" }, {
+		await server.updateOne({ guildID: NeumontServerID }, {
 			$push: {
 				commands: {
 					"commandName": commandName,
@@ -90,46 +87,16 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 	}
 }
 
-async function boowomp() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://youtu.be/Ta2CK4ByGsw", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
-}
-
-async function marioScream() {
-	//join
-	const connection = await connectToChannel();
-
-	//find yt link, create audio file, create player
-	const stream = await play.stream("https://www.youtube.com/watch?v=TCW72WQdQ8A", { filter: "audioonly" })
-	const player = createAudioPlayer();
-	const resource = createAudioResource(stream.stream, { inputType: stream.type });
-
-	//play sound (bruh)
-	player.play(resource);
-	player.on('error', (error) => console.error(error)); //Just in case
-	connection.subscribe(player);
-
-	//leave
-	//Make the bot leave the vc after sound has played
+async function deleteSound(commandName) {
+	await server.updateOne({ guildID: NeumontServerID }, {
+		$pull: {"commands": {"commandName": commandName}}
+	})
 }
 
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
-	server.findOne({ guildID: "1006328808401555527" }, function (err, server) {
+	server.findOne({ guildID: NeumontServerID }, function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
@@ -161,6 +128,21 @@ async function soundBoard(msg) {
 	});
 }
 
+
+////////////Unused commands////////////
+async function bruh() {
+	playMusic("https://www.youtube.com/watch?v=2ZIpFytCSVc");
+}
+
+async function boowomp() {
+	playMusic("https://youtu.be/Ta2CK4ByGsw");
+}
+
+async function marioScream() {
+	playMusic("https://www.youtube.com/watch?v=TCW72WQdQ8A");
+}
+////////////////////////////////////////
+
 client.on('ready', async () => {
 	console.log("Good Morning Master")
 
@@ -170,7 +152,7 @@ client.on('ready', async () => {
 
 	// ////////Syntax for setting up a new server/updating commands?////////////
 	// var test = await new testSchema({
-	// 	guildID: "1006328808401555527",
+	// 	guildID: NeumontServerID,
 	// 	prefix: prefix,
 	// 	commands: [
 	// 		{
@@ -195,27 +177,31 @@ client.on('ready', async () => {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	if (msg.content.toLowerCase().startsWith(`${prefix}join`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
+		server.find({ guildID: NeumontServerID }, prefix);
+
+		msg.channel.send
+		("Commands: \n\n" +
+		"\`help\`: Sends this message :nerd:\n\n" +
+		"\`join\`: Joins the voice call of the user that sent it. :ear:\n" +
+		"\`leave\`: Leaves the voice call. :wave:\n\n" +
+		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
+		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
+		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n" +
+		"Your prefix is: \"" + prefix + "\""
+		)
+	}
+	
+	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
 		connectToChannel();
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat
+		//Check first if bot is in a voice chat?
 		(await connectToChannel()).destroy();
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
-		bruh();
-	}
-	//Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
-
-	if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
-		boowomp();
-	}
-
-	if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
-		marioScream();
-	}
-	if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
 		soundBoard(msg);
 	}
 
@@ -226,12 +212,37 @@ client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
 		let str = msg.content;
 		let commandName = str.split(' ',4)[1];
-		let relatedEmoji = str.split(' ',4)[2];
+		let relatedEmoji = str.split(' ',4)[2].replace(":","");
 		let soundURL = str.split(' ',4)[3];
+
 		createSound(commandName, relatedEmoji, soundURL);
-		console.log(createSound);
+		console.log("createSound");
+		console.log(relatedEmoji);
 
 	}
+	
+	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
+		var commandName = "Vine boom";
+		deleteSound(commandName);
+	}
+
+	// //////////Unused commands////////////
+	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) { //Bruh sound
+	// 	bruh();
+	// }
+	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
+	
+	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) { //Boowomp sound
+	// 	boowomp();
+	// }
+	
+	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) { //Mario scream sound
+	// 	marioScream();
+	// }
+	// else if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) { //Play music command -- unlisted command that plays a Rickroll
+	// 	playMusic("https://youtu.be/Ta2CK4ByGsw")
+	// }
+	////////////////////////////////////////
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

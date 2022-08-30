@@ -174,12 +174,22 @@ client.on("messageCreate", async (msg) => {
 
 		msg.channel.send
 		("Commands: \n\n" +
-		"\`help\`: Sends this message :nerd:\n\n" +
-		"\`join\`: Joins the voice call of the user that sent it. :ear:\n" +
-		"\`leave\`: Leaves the voice call. :wave:\n\n" +
-		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
-		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
-		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n" +
+
+		`\`${prefix}help\`: Sends this message :nerd:\n\n` +
+
+		"----- VOICE CHAT COMMANDS -----\n" + 
+		`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
+		`\`${prefix}leave\`: Leaves the voice call. :wave:\n\n` +
+
+		"----- SOUNDBOARD COMMANDS -----\n" + 
+		`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` + 
+		`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n` +
+		`\`${prefix}deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n` +
+
+		"----- EXAMPLES -----\n" +
+		`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
+		`${prefix}deletesound Rickroll\n\n` +
+
 		"Your prefix is: \"" + prefix + "\""
 		)
 	}

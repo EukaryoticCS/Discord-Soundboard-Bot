@@ -31,8 +31,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get(EukaryoticServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get(EukaryoticVoiceID) //Voice chat channel ID
+	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
+	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -75,7 +75,7 @@ async function playMusic(URL) {
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
-		await server.updateOne({ guildID: EukaryoticServerID }, {
+		await server.updateOne({ guildID: NeumontServerID }, {
 			$push: {
 				commands: {
 					"commandName": commandName,
@@ -88,7 +88,7 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 }
 
 async function deleteSound(commandName) {
-	await server.updateOne({ guildID: EukaryoticServerID }, {
+	await server.updateOne({ guildID: NeumontServerID }, {
 		$pull: {"commands": {"commandName": commandName}}
 	})
 }
@@ -96,7 +96,7 @@ async function deleteSound(commandName) {
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
-	server.findOne({ guildID: EukaryoticServerID }, function (err, server) {
+	server.findOne({ guildID: NeumontServerID }, function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
@@ -177,7 +177,7 @@ client.on('ready', async () => {
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
-		server.find({ guildID: EukaryoticServerID }, prefix);
+		server.find({ guildID: NeumontServerID }, prefix);
 
 		msg.channel.send
 		("Commands: \n\n" +

@@ -4,7 +4,14 @@ import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
 import emojione from 'emojione';
-dotenv.config()
+dotenv.config();
+
+//We could store the ID in a constant?
+const NeumontServerID = "1006328808401555527";
+const NeumontVoiceID = "1006328808917438547";
+
+const EukaryoticServerID = "1010406994332627026";
+const EukaryoticVoiceID = "1010406995083399212";
 
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
@@ -24,8 +31,8 @@ const client = new DiscordJS.Client({
 })
 
 async function connectToChannel() {
-	const guild = client.guilds.cache.get("1006328808401555527") //Guild/Server ID
-	const channel = guild.channels.cache.get("1006328808917438547") //Voice chat channel ID
+	const guild = client.guilds.cache.get(EukaryoticServerID) //Guild/Server ID
+	const channel = guild.channels.cache.get(EukaryoticVoiceID) //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -68,7 +75,7 @@ async function playMusic(URL) {
 async function createSound(commandName, relatedEmoji, soundURL) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
-		await server.updateOne({ guildID: "1006328808401555527" }, {
+		await server.updateOne({ guildID: EukaryoticServerID }, {
 			$push: {
 				commands: {
 					"commandName": commandName,
@@ -81,7 +88,7 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 }
 
 async function deleteSound(commandName) {
-	await server.updateOne({ guildID: "1006328808401555527"}, {
+	await server.updateOne({ guildID: EukaryoticServerID }, {
 		$pull: {"commands": {"commandName": commandName}}
 	})
 }
@@ -89,7 +96,7 @@ async function deleteSound(commandName) {
 async function soundBoard(msg) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
-	server.findOne({ guildID: "1006328808401555527" }, function (err, server) {
+	server.findOne({ guildID: EukaryoticServerID }, function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
@@ -144,7 +151,7 @@ client.on('ready', async () => {
 
 	// ////////Syntax for setting up a new server/updating commands?////////////
 	// var test = await new testSchema({
-	// 	guildID: "1006328808401555527",
+	// 	guildID: NeumontServerID,
 	// 	prefix: prefix,
 	// 	commands: [
 	// 		{
@@ -170,7 +177,7 @@ client.on('ready', async () => {
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) {
-		server.find({guildID: "1006328808401555527"}, prefix);
+		server.find({ guildID: EukaryoticServerID }, prefix);
 
 		msg.channel.send
 		("Commands: \n\n" +
@@ -192,21 +199,6 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
-	////////////Unused commands////////////
-	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
-	// 	bruh();
-	// }
-	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
-
-	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
-	// 	boowomp();
-	// }
-
-	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
-	// 	marioScream();
-	// }
-	////////////////////////////////////////
-
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);
 	}
@@ -216,9 +208,9 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
-		var commandName = "";
-		var relatedEmoji = "";
-		var soundURL = "";
+		var commandName = "Vine boom";
+		var relatedEmoji = "exploding_head";
+		var soundURL = "https://www.youtube.com/watch?v=_vBVGjFdwk4";
 		createSound(commandName, relatedEmoji, soundURL);
 	}
 	
@@ -226,6 +218,21 @@ client.on("messageCreate", async (msg) => {
 		var commandName = "";
 		deleteSound(commandName);
 	}
+
+	// //////////Unused commands////////////
+	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
+	// 	bruh();
+	// }
+	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
+	//
+	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
+	// 	boowomp();
+	// }
+	//
+	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
+	// 	marioScream();
+	// }
+	////////////////////////////////////////
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

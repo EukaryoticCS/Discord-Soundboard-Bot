@@ -101,13 +101,13 @@ async function soundBoard(msg) {
 		console.log(server.guildID + ' is your guildID');
 
 		for (let i = 0; i < server.commands.length; i++) {
-			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
+			soundboardString = soundboardString.concat(server.commands[i].relatedEmoji, " " + server.commands[i].commandName, "\n");
 		}
 
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {
 			for (let i = 0; i < server.commands.length; i++) {
-				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
+				sentMessage.react(server.commands[i].relatedEmoji);
 			}
 		}
 		)
@@ -116,8 +116,8 @@ async function soundBoard(msg) {
 			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
 				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
 				for (let i = 0; i < server.commands.length; i++) {
-					if (reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")) &&
-						reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")).count >= 2) {
+					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
 						console.log("Button pressed!");
 						msg.channel.send("Button pressed!");
 						playMusic(server.commands[i].soundURL);
@@ -127,6 +127,7 @@ async function soundBoard(msg) {
 		})
 	});
 }
+
 
 ////////////Unused commands////////////
 async function bruh() {
@@ -204,11 +205,20 @@ client.on("messageCreate", async (msg) => {
 		soundBoard(msg);
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) { //Createsound command -- allows a server to have a custom sound
-		var commandName = "Vine boom";
-		var relatedEmoji = "exploding_head";
-		var soundURL = "https://www.youtube.com/watch?v=_vBVGjFdwk4";
+	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
+		playMusic("https://youtu.be/Ta2CK4ByGsw")
+	}
+
+	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+		let str = msg.content;
+		let commandName = str.split(' ',4)[1];
+		let relatedEmoji = str.split(' ',4)[2];
+		let soundURL = str.split(' ',4)[3];
+
 		createSound(commandName, relatedEmoji, soundURL);
+		console.log("createSound");
+		console.log(relatedEmoji);
+
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound

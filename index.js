@@ -101,13 +101,13 @@ async function soundBoard(msg) {
 		console.log(server.guildID + ' is your guildID');
 
 		for (let i = 0; i < server.commands.length; i++) {
-			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
+			soundboardString = soundboardString.concat(server.commands[i].relatedEmoji, " " + server.commands[i].commandName, "\n");
 		}
 
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {
 			for (let i = 0; i < server.commands.length; i++) {
-				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
+				sentMessage.react(server.commands[i].relatedEmoji);
 			}
 		}
 		)
@@ -212,7 +212,7 @@ client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
 		let str = msg.content;
 		let commandName = str.split(' ',4)[1];
-		let relatedEmoji = str.split(' ',4)[2].replace(":","");
+		let relatedEmoji = str.split(' ',4)[2];
 		let soundURL = str.split(' ',4)[3];
 
 		createSound(commandName, relatedEmoji, soundURL);

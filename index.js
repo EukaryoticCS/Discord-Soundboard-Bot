@@ -212,11 +212,12 @@ client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
 		let str = msg.content;
 		let commandName = str.split(' ',4)[1];
-		let relatedEmoji = str.split(' ',4)[2];
+		let relatedEmoji = str.split(' ',4)[2].replace(":","");
 		let soundURL = str.split(' ',4)[3];
 
 		createSound(commandName, relatedEmoji, soundURL);
 		console.log("createSound");
+		console.log(relatedEmoji);
 
 	}
 	

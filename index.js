@@ -222,7 +222,9 @@ client.on("messageCreate", async (msg) => {
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
-		var commandName = "Vine boom";
+		let str = msg.content;
+		let commandName = str.split(' ',2)[1];
+		console.log(commandName);
 		deleteSound(commandName);
 	}
 

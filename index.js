@@ -176,7 +176,7 @@ client.on('ready', async () => {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) {
+	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
 		server.find({ guildID: EukaryoticServerID }, prefix);
 
 		msg.channel.send
@@ -191,46 +191,46 @@ client.on("messageCreate", async (msg) => {
 		)
 	}
 	
-	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
 		connectToChannel();
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat
+		//Check first if bot is in a voice chat?
 		(await connectToChannel()).destroy();
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
 		soundBoard(msg);
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
-		playMusic("https://youtu.be/Ta2CK4ByGsw")
-	}
-
-	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) { //Createsound command -- allows a server to have a custom sound
 		var commandName = "Vine boom";
 		var relatedEmoji = "exploding_head";
 		var soundURL = "https://www.youtube.com/watch?v=_vBVGjFdwk4";
 		createSound(commandName, relatedEmoji, soundURL);
 	}
 	
-	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) {
-		var commandName = "";
+	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
+		var commandName = "Vine boom";
 		deleteSound(commandName);
 	}
 
 	// //////////Unused commands////////////
-	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
+	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) { //Bruh sound
 	// 	bruh();
 	// }
 	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
-	//
-	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) {
+	
+	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) { //Boowomp sound
 	// 	boowomp();
 	// }
-	//
-	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
+	
+	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) { //Mario scream sound
 	// 	marioScream();
+	// }
+	// else if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) { //Play music command -- unlisted command that plays a Rickroll
+	// 	playMusic("https://youtu.be/Ta2CK4ByGsw")
 	// }
 	////////////////////////////////////////
 })

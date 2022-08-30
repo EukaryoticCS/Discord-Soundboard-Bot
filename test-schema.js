@@ -27,4 +27,4 @@ const schema = new mongoose.Schema({
 ]
 })
 
-export default mongoose.model('testing', schema, 'testing');
+export default mongoose.model('servers', schema, 'servers');

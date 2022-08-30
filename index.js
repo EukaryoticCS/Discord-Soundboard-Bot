@@ -121,7 +121,7 @@ async function soundBoard(msg) {
 	});
 }
 
-/*This is our Bruh Command */
+////////////Unused commands////////////
 async function bruh() {
 	playMusic("https://www.youtube.com/watch?v=2ZIpFytCSVc");
 }
@@ -133,6 +133,7 @@ async function boowomp() {
 async function marioScream() {
 	playMusic("https://www.youtube.com/watch?v=TCW72WQdQ8A");
 }
+////////////////////////////////////////
 
 client.on('ready', async () => {
 	console.log("Good Morning Master")
@@ -169,6 +170,8 @@ client.on('ready', async () => {
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) {
+		server.find({guildID: "1006328808401555527"}, prefix);
+
 		msg.channel.send
 		("Commands: \n\n" +
 		"\`help\`: Sends this message :nerd:\n\n" +
@@ -176,7 +179,8 @@ client.on("messageCreate", async (msg) => {
 		"\`leave\`: Leaves the voice call. :wave:\n\n" +
 		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
 		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
-		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n"
+		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n" +
+		"Your prefix is: \"" + prefix + "\""
 		)
 	}
 	
@@ -188,6 +192,7 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
+	////////////Unused commands////////////
 	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) {
 	// 	bruh();
 	// }
@@ -200,6 +205,7 @@ client.on("messageCreate", async (msg) => {
 	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) {
 	// 	marioScream();
 	// }
+	////////////////////////////////////////
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) {
 		soundBoard(msg);

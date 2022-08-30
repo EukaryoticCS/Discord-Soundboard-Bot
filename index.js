@@ -149,8 +149,8 @@ async function soundBoard(msg) {
 			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
 				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
 				for (let i = 0; i < server.commands.length; i++) {
-					if (reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")) &&
-						reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")).count >= 2) {
+					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
 						console.log("Button pressed!");
 						msg.channel.send("Button pressed!");
 						playMusic(server.commands[i].soundURL);

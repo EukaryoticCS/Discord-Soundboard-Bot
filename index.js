@@ -18,8 +18,6 @@ import testSchema from './test-schema.js';
 var server = testSchema;
 ///////////////////////////////////////////////////////
 
-const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
-
 const client = new DiscordJS.Client({
 	intents: [
 		IntentsBitField.Flags.Guilds,
@@ -32,7 +30,7 @@ const client = new DiscordJS.Client({
 
 async function connectToChannel() {
 	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
+	const channel = guild.channels.cache.get() //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -48,10 +46,6 @@ async function connectToChannel() {
 
 async function playMusic(URL) {
 	const connection = await connectToChannel();
-
-	// let str = msg.content;
-	// let substrings = str.split(' ')[2];///substing is the Url of the video 
-	// console.log(substrings);
 
 	try {
 		//Youtube Link Player
@@ -70,6 +64,12 @@ async function playMusic(URL) {
 	} catch (e) {
 		console.log("Error playing sound!")
 	}
+}
+
+async function changePrefix(prefix) {
+	await server.updateOne({ guildID: NeumontServerID }, {
+		"prefix": prefix
+	})
 }
 
 async function createSound(commandName, relatedEmoji, soundURL) {
@@ -177,23 +177,38 @@ client.on('ready', async () => {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
+	let query = await server.findOne({ guildID: NeumontServerID }, 'prefix').exec();
+	let prefix = query.get("prefix");
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
-		server.find({ guildID: NeumontServerID }, prefix);
 
 		msg.channel.send
 		("Commands: \n\n" +
-		"\`help\`: Sends this message :nerd:\n\n" +
-		"\`join\`: Joins the voice call of the user that sent it. :ear:\n" +
-		"\`leave\`: Leaves the voice call. :wave:\n\n" +
-		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
-		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
-		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n" +
+
+		"----- MISC COMMANDS -----\n" +
+		`\`${prefix}help\`: Sends this message :nerd:\n` +
+		`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot :exclamation:\n\n` +
+
+		"----- VOICE CHAT COMMANDS -----\n" +
+		`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
+		`\`${prefix}leave\`: Leaves the voice call. :wave:\n\n` +
+
+		"----- SOUNDBOARD COMMANDS -----\n" +
+		`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` + 
+		`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n` +
+		`\`${prefix}deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n` +
+		
+		"----- EXAMPLES -----\n" +
+		`${prefix}changeprefix %\n` +
+		`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
+		`${prefix}deletesound Rickroll\n\n` +
+		
 		"Your prefix is: \"" + prefix + "\""
+		
 		)
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
-		connectToChannel();
+		connectToChannel(msg);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat
@@ -201,8 +216,15 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
+	else if (msg.content.toLowerCase().startsWith(`${prefix}changeprefix`)) {
+		let str = msg.content;
+		let newPrefix = str.split(' ',2)[1];
+		changePrefix(newPrefix);
+		msg.channel.send("Prefix changed! Your new prefix is: " + newPrefix);
+	}
+
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
-		soundBoard(msg);
+		soundBoard();
 	}
 
 	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
@@ -216,15 +238,12 @@ client.on("messageCreate", async (msg) => {
 		let soundURL = str.split(' ',4)[3];
 
 		createSound(commandName, relatedEmoji, soundURL);
-		console.log("createSound");
-		console.log(relatedEmoji);
 
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
 		let str = msg.content;
 		let commandName = str.split(' ',2)[1];
-		console.log(commandName);
 		deleteSound(commandName);
 	}
 
@@ -245,6 +264,7 @@ client.on("messageCreate", async (msg) => {
 	// 	playMusic("https://youtu.be/Ta2CK4ByGsw")
 	// }
 	////////////////////////////////////////
+	
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

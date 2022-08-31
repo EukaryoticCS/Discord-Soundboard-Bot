@@ -18,8 +18,6 @@ import testSchema from './test-schema.js';
 var server = testSchema;
 ///////////////////////////////////////////////////////
 
-const prefix = "!"; //Needs to be dynamically changed in the future on a per-server basis
-
 const client = new DiscordJS.Client({
 	intents: [
 		IntentsBitField.Flags.Guilds,
@@ -78,10 +76,6 @@ client.on("messageCreate", async (msg) => {
 async function playMusic(URL) {
 	const connection = await connectToChannel();
 
-	// let str = msg.content;
-	// let substrings = str.split(' ')[2];///substing is the Url of the video 
-	// console.log(substrings);
-
 	try {
 		//Youtube Link Player
 		const stream = await play.stream(URL, { filter: "audioonly" })
@@ -99,6 +93,12 @@ async function playMusic(URL) {
 	} catch (e) {
 		console.log("Error playing sound!")
 	}
+}
+
+async function changePrefix(prefix) {
+	await server.updateOne({ guildID: NeumontServerID }, {
+		"prefix": prefix
+	})
 }
 
 async function createSound(commandName, relatedEmoji, soundURL) {
@@ -130,13 +130,13 @@ async function soundBoard(msg) {
 		console.log(server.guildID + ' is your guildID');
 
 		for (let i = 0; i < server.commands.length; i++) {
-			soundboardString = soundboardString.concat(":", server.commands[i].relatedEmoji, ": " + server.commands[i].commandName, "\n");
+			soundboardString = soundboardString.concat(server.commands[i].relatedEmoji, " " + server.commands[i].commandName, "\n");
 		}
 
 		console.log(soundboardString);
 		msg.channel.send(soundboardString).then(sentMessage => {
 			for (let i = 0; i < server.commands.length; i++) {
-				sentMessage.react(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":"));
+				sentMessage.react(server.commands[i].relatedEmoji);
 			}
 		}
 		)
@@ -145,8 +145,8 @@ async function soundBoard(msg) {
 			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
 				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
 				for (let i = 0; i < server.commands.length; i++) {
-					if (reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")) &&
-						reaction.message.reactions.cache.get(emojione.shortnameToUnicode(":" + server.commands[i].relatedEmoji + ":")).count >= 2) {
+					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
 						console.log("Button pressed!");
 						msg.channel.send("Button pressed!");
 						playMusic(server.commands[i].soundURL);
@@ -156,6 +156,7 @@ async function soundBoard(msg) {
 		})
 	});
 }
+
 
 ////////////Unused commands////////////
 async function bruh() {
@@ -205,18 +206,33 @@ client.on('ready', async () => {
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
+	let query = await server.findOne({ guildID: NeumontServerID }, 'prefix').exec();
+	let prefix = query.get("prefix");
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
-		server.find({ guildID: NeumontServerID }, prefix);
 
 		msg.channel.send
 		("Commands: \n\n" +
-		"\`help\`: Sends this message :nerd:\n\n" +
-		"\`join\`: Joins the voice call of the user that sent it. :ear:\n" +
-		"\`leave\`: Leaves the voice call. :wave:\n\n" +
-		"\`soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n" + 
-		"\`createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n" +
-		"\`deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n" +
+
+		"----- MISC COMMANDS -----\n" +
+		`\`${prefix}help\`: Sends this message :nerd:\n` +
+		`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot :exclamation:\n\n` +
+
+		"----- VOICE CHAT COMMANDS -----\n" +
+		`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
+		`\`${prefix}leave\`: Leaves the voice call. :wave:\n\n` +
+
+		"----- SOUNDBOARD COMMANDS -----\n" +
+		`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` + 
+		`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n` +
+		`\`${prefix}deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n` +
+		
+		"----- EXAMPLES -----\n" +
+		`${prefix}changeprefix %\n` +
+		`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
+		`${prefix}deletesound Rickroll\n\n` +
+		
 		"Your prefix is: \"" + prefix + "\""
+		
 		)
 	}
 	
@@ -229,19 +245,34 @@ client.on("messageCreate", async (msg) => {
 		(await connectToChannel()).destroy();
 	}
 
+	else if (msg.content.toLowerCase().startsWith(`${prefix}changeprefix`)) {
+		let str = msg.content;
+		let newPrefix = str.split(' ',2)[1];
+		changePrefix(newPrefix);
+		msg.channel.send("Prefix changed! Your new prefix is: " + newPrefix);
+	}
+
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
 		soundBoard(msg);
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) { //Createsound command -- allows a server to have a custom sound
-		var commandName = "Vine boom";
-		var relatedEmoji = "exploding_head";
-		var soundURL = "https://www.youtube.com/watch?v=_vBVGjFdwk4";
+	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
+		playMusic("https://youtu.be/Ta2CK4ByGsw")
+	}
+
+	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+		let str = msg.content;
+		let commandName = str.split(' ',4)[1];
+		let relatedEmoji = str.split(' ',4)[2];
+		let soundURL = str.split(' ',4)[3];
+
 		createSound(commandName, relatedEmoji, soundURL);
+
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
-		var commandName = "Vine boom";
+		let str = msg.content;
+		let commandName = str.split(' ',2)[1];
 		deleteSound(commandName);
 	}
 
@@ -262,6 +293,7 @@ client.on("messageCreate", async (msg) => {
 	// 	playMusic("https://youtu.be/Ta2CK4ByGsw")
 	// }
 	////////////////////////////////////////
+	
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

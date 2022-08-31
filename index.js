@@ -30,7 +30,7 @@ const client = new DiscordJS.Client({
 
 async function connectToChannel() {
 	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get() //Voice chat channel ID
+	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -224,7 +224,7 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
-		soundBoard();
+		soundBoard(msg);
 	}
 
 	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {

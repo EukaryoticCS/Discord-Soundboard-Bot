@@ -1,5 +1,5 @@
-import DiscordJS, { IntentsBitField } from 'discord.js'
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
+import DiscordJS, { IntentsBitField, VoiceChannel } from 'discord.js'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
@@ -30,9 +30,9 @@ const client = new DiscordJS.Client({
 	]
 })
 
-async function connectToChannel() {
+async function connectToChannel(message) {
 	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
+	const channel = guild.channels.cache.get(message.author.channelId) //Voice chat channel ID
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
@@ -45,6 +45,31 @@ async function connectToChannel() {
 		throw error;
 	}
 }
+
+async function run(message, args)
+{
+	if(message.member.voiceChannel)
+	{
+		if(!message.guild.voiceConnection)
+		{
+			message.member.voiceChannel.join()
+			.then(connection =>{
+				message.replay("Succesfully Joined!");
+			})
+		}
+	}
+	else{
+		message.reply("Didnt work")
+	}
+}
+client.on("messageCreate", async (msg) => {
+	if(msg.content.startsWith(`${prefix}Join`) )  {
+		run();
+	}
+})
+
+	
+
 
 async function playMusic(URL) {
 	const connection = await connectToChannel();
@@ -192,7 +217,7 @@ client.on("messageCreate", async (msg) => {
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
-		connectToChannel();
+		connectToChannel(msg);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat

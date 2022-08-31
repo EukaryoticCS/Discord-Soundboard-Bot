@@ -32,17 +32,24 @@ const client = new DiscordJS.Client({
 
 async function connectToChannel(message) {
 	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get(message.author.channelId) //Voice chat channel ID
-	const connection = joinVoiceChannel({
-		channelId: channel.id,
-		guildId: channel.guild.id,
-		adapterCreator: guild.voiceAdapterCreator,
-	});
-	try {
-		return connection;
-	} catch (error) {
-		connection.destroy();
-		throw error;
+
+	if (message.member.voice.channel) {
+		const channel = guild.channels.cache.get(message.member.voice.channel.id) //Voice chat channel ID
+
+		const connection = joinVoiceChannel({
+			channelId: channel.id,
+			guildId: channel.guild.id,
+			adapterCreator: guild.voiceAdapterCreator,
+		});
+		try {
+			return connection;
+		} catch (error) {
+			connection.destroy();
+			throw error;
+		}
+	} else {
+		message.channel.send("Join a voice channel!");
+		return;
 	}
 }
 
@@ -67,9 +74,6 @@ client.on("messageCreate", async (msg) => {
 		run();
 	}
 })
-
-	
-
 
 async function playMusic(URL) {
 	const connection = await connectToChannel();

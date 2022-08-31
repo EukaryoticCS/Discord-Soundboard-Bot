@@ -1,5 +1,5 @@
-import DiscordJS, { IntentsBitField } from 'discord.js'
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
+import DiscordJS, { IntentsBitField, VoiceChannel } from 'discord.js'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
@@ -8,10 +8,8 @@ dotenv.config();
 
 //We could store the ID in a constant?
 const NeumontServerID = "1006328808401555527";
-const NeumontVoiceID = "1006328808917438547";
 
 const EukaryoticServerID = "1010406994332627026";
-const EukaryoticVoiceID = "1010406995083399212";
 
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
@@ -28,24 +26,31 @@ const client = new DiscordJS.Client({
 	]
 })
 
-async function connectToChannel() {
+async function connectToChannel(userID) {
 	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
-	const channel = guild.channels.cache.get(NeumontVoiceID) //Voice chat channel ID
-	const connection = joinVoiceChannel({
-		channelId: channel.id,
-		guildId: channel.guild.id,
-		adapterCreator: guild.voiceAdapterCreator,
-	});
+
 	try {
-		return connection;
-	} catch (error) {
-		connection.destroy();
-		throw error;
+		const user = await guild.members.fetch(userID)
+		const channel = guild.channels.cache.get(user.voice.channel.id) //Voice chat channel ID
+
+		const connection = joinVoiceChannel({
+			channelId: channel.id,
+			guildId: channel.guild.id,
+			adapterCreator: guild.voiceAdapterCreator,
+		});
+		try {
+			return connection;
+		} catch (error) {
+			connection.destroy();
+			throw error;
+		}
+	} catch {
+		return;
 	}
 }
 
-async function playMusic(URL) {
-	const connection = await connectToChannel();
+async function playMusic(URL, userID) {
+	const connection = await connectToChannel(userID);
 
 	try {
 		//Youtube Link Player
@@ -120,7 +125,7 @@ async function soundBoard(msg) {
 						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
 						console.log("Button pressed!");
 						msg.channel.send("Button pressed!");
-						playMusic(server.commands[i].soundURL);
+						playMusic(server.commands[i].soundURL, user.id);
 					}
 				}
 			}
@@ -208,12 +213,14 @@ client.on("messageCreate", async (msg) => {
 	}
 	
 	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
-		connectToChannel(msg);
+		connectToChannel(msg.author.id);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat
 		//Check first if bot is in a voice chat?
-		(await connectToChannel()).destroy();
+		if (msg.member.voice.channel) {
+			(await connectToChannel(msg.author.id)).destroy();
+		}
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}changeprefix`)) {

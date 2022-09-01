@@ -85,15 +85,15 @@ async function createSound(commandName, relatedEmoji, soundURL, msg, currentServ
 				}
 			}
 		})
-		msg.channel.send("Sound created: " + commandName + ":" + relatedEmoji + ": <" + soundURL + ">")
+		msg.channel.send("Sound created: " + commandName + " " + relatedEmoji + " <" + soundURL + ">")
 	}
 }
 
 async function deleteSound(commandName, msg, currentServerID) {
-	server.updateOne({ guildID: currentServerID }, {
+	await server.updateOne({ guildID: currentServerID }, {
 		$pull: { "commands": { "commandName": commandName } }
 	}) 
-	msg.channel.send("Sound deleted!");
+	msg.channel.send("Sound deleted!"); //Doesn't check if a sound was actually deleted :grimacing:
 }
 
 async function soundBoard(msg, currentServerID) {
@@ -116,26 +116,6 @@ async function soundBoard(msg, currentServerID) {
 				msg.channel.send("One of your emojis is malformed. Delete it using `deletesound <commandName>`.")
 			}
 		}
-		
-
-		client.on('messageReactionAdd', (reaction, user) => {
-			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
-				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-				
-					for (let i = 0; i < server.commands.length; i++) {
-						if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
-							reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
-							// console.log("Button pressed!");
-							// msg.channel.send("Button pressed!");
-							try {
-								playMusic(server.commands[i].soundURL, user.id, currentServerID);
-							} catch {
-								message.send("One of your links is malformed. Delete it using `deletesound <commandName>`.")
-							}
-						}
-				}
-			}
-		})
 	});
 }
 
@@ -173,6 +153,7 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 
 client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
 	server.findOneAndDelete({"guildID": guild.id}).exec()
+	console.log("Kicked from server: " + guild.id);
 })
 
 /* This is a big messageCreate function for join and leave */
@@ -245,6 +226,26 @@ client.on("messageCreate", async (msg) => {
 		deleteSound(commandName, msg, currentServerID);
 	}
 
+})
+
+client.on('messageReactionAdd', (reaction, user) => {
+	let currentServerID = reaction.message.guild.id;
+	server.findOne({ guildID: currentServerID }, async function (err, server) {
+		if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
+				for (let i = 0; i < server.commands.length; i++) {
+					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
+						// console.log("Button pressed!");
+						// msg.channel.send("Button pressed!");
+						try {
+							playMusic(server.commands[i].soundURL, user.id, currentServerID);
+						} catch {
+							message.send("One of your links is malformed. Delete it using `deletesound <commandName>`.")
+						}
+					}
+			}
+		}
+	})
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

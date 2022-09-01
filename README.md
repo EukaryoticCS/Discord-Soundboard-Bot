@@ -20,5 +20,3 @@
 !changeprefix %
 !createsound Rickroll :smiling_imp: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 !deletesound Rickroll
-
-Your prefix is: "!"

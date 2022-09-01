@@ -1,5 +1,5 @@
-import DiscordJS, { IntentsBitField, VoiceChannel } from 'discord.js'
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel, VoiceConnection } from '@discordjs/voice'
+import DiscordJS, { IntentsBitField } from 'discord.js'
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
@@ -47,8 +47,6 @@ async function connectToChannel(userID, currentServerID) {
 async function playMusic(URL, userID, currentServerID) {
 	const connection = await connectToChannel(userID, currentServerID);
 
-	try {
-
 		//Youtube Link Player
 		const stream = await play.stream(URL, { filter: "audioonly" })
 		const player = createAudioPlayer();
@@ -62,9 +60,6 @@ async function playMusic(URL, userID, currentServerID) {
 		player.on(AudioPlayerStatus.Idle, async () => {
 			connection.destroy();
 		})
-	} catch {
-		console.log("Error playing sound!")
-	}
 }
 
 async function changePrefix(prefix, currentServerID) {
@@ -75,6 +70,16 @@ async function changePrefix(prefix, currentServerID) {
 
 async function createSound(commandName, relatedEmoji, soundURL, msg, currentServerID) {
 	console.log("Creating sound");
+
+	//Making sure you don't duplicate any command names or emojis
+	if (await server.findOne({"commands.commandName": commandName}).exec() != null) {
+		msg.channel.send("You already have a sound with that name!");
+		return;
+	} else if (await server.findOne({"commands.relatedEmoji": relatedEmoji}).exec() != null) {
+		msg.channel.send("You already have a sound with that emoji!");
+		return;
+	}
+
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
 		await server.updateOne({ guildID: currentServerID }, {
 			$push: {
@@ -85,7 +90,7 @@ async function createSound(commandName, relatedEmoji, soundURL, msg, currentServ
 				}
 			}
 		})
-		msg.channel.send("Sound created: " + commandName + " " + relatedEmoji + " <" + soundURL + ">")
+		msg.channel.send("Sound created: " + commandName + " " + relatedEmoji + " <" + soundURL + ">");
 	}
 }
 
@@ -180,9 +185,9 @@ client.on("messageCreate", async (msg) => {
 				`\`${prefix}deletesound <commandName>\`: Takes in a command name and deletes the corresponding sound from the soundboard. :x:\n\n` +
 
 				"----- EXAMPLES -----\n" +
-				`${prefix}changeprefix %\n` +
-				`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
-				`${prefix}deletesound Rickroll\n\n` +
+				"\`${prefix}changeprefix %\n\`" +
+				"\`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n\`" +
+				"\`${prefix}deletesound Rickroll\n\n\`" +
 
 				"Your prefix is: \"" + prefix + "\""
 
@@ -228,24 +233,25 @@ client.on("messageCreate", async (msg) => {
 
 })
 
-client.on('messageReactionAdd', (reaction, user) => {
+client.on('messageReactionAdd', async (reaction, user) => { //Checks for users clicking a reaction, plays the corresponding sound
 	let currentServerID = reaction.message.guild.id;
 	server.findOne({ guildID: currentServerID }, async function (err, server) {
-		if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
-				for (let i = 0; i < server.commands.length; i++) {
-					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
-						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
-						// console.log("Button pressed!");
-						// msg.channel.send("Button pressed!");
-						try {
-							playMusic(server.commands[i].soundURL, user.id, currentServerID);
-						} catch {
-							message.send("One of your links is malformed. Delete it using `deletesound <commandName>`.")
-						}
+		if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") { //User reacted to the bot, and the user is not the bot
+			for (let i = 0; i < server.commands.length; i++) {
+				if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+					reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
+					// console.log("Button pressed!");
+					// msg.channel.send("Button pressed!");
+					try {
+						await playMusic(server.commands[i].soundURL, user.id, currentServerID);
+					} catch {
+						//If the URL doesn't work, catch it here, send a message back
+						reaction.message.channel.send("The link for that sound is malformed. Delete it using `deletesound <commandName>`.")
 					}
+				}
 			}
 		}
 	})
 })
-/*end of messageCreate*/
+
 client.login(process.env.TOKEN)

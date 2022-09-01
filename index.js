@@ -73,7 +73,7 @@ async function changePrefix(prefix, currentServerID) {
 	})
 }
 
-async function createSound(commandName, relatedEmoji, soundURL, currentServerID) {
+async function createSound(commandName, relatedEmoji, soundURL, msg, currentServerID) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
 		await server.updateOne({ guildID: currentServerID }, {
@@ -85,19 +85,21 @@ async function createSound(commandName, relatedEmoji, soundURL, currentServerID)
 				}
 			}
 		})
+		msg.channel.send("Sound created: " + commandName + " " + relatedEmoji + " <" + soundURL + ">")
 	}
 }
 
-async function deleteSound(commandName, currentServerID) {
+async function deleteSound(commandName, msg, currentServerID) {
 	await server.updateOne({ guildID: currentServerID }, {
 		$pull: { "commands": { "commandName": commandName } }
-	})
+	}) 
+	msg.channel.send("Sound deleted!"); //Doesn't check if a sound was actually deleted :grimacing:
 }
 
 async function soundBoard(msg, currentServerID) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
-	server.findOne({ guildID: currentServerID }, function (err, server) {
+	server.findOne({ guildID: currentServerID }, async function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
@@ -106,26 +108,14 @@ async function soundBoard(msg, currentServerID) {
 		}
 
 		console.log(soundboardString);
-		msg.channel.send(soundboardString).then(sentMessage => {
-			for (let i = 0; i < server.commands.length; i++) {
-				sentMessage.react(server.commands[i].relatedEmoji);
+		const sentMessage = await msg.channel.send(soundboardString);
+		for (let i = 0; i < server.commands.length; i++) {
+			try {
+				await sentMessage.react(server.commands[i].relatedEmoji);
+			} catch {
+				msg.channel.send("One of your emojis is malformed. Delete it using `deletesound <commandName>`.")
 			}
 		}
-		)
-
-		client.on('messageReactionAdd', (reaction, user) => {
-			if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
-				//Here you can check the message itself, the author, a tag on the message or in its content, title ...
-				for (let i = 0; i < server.commands.length; i++) {
-					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
-						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
-						// console.log("Button pressed!");
-						// msg.channel.send("Button pressed!");
-						playMusic(server.commands[i].soundURL, user.id, currentServerID);
-					}
-				}
-			}
-		})
 	});
 }
 
@@ -163,6 +153,7 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 
 client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
 	server.findOneAndDelete({"guildID": guild.id}).exec()
+	console.log("Kicked from server: " + guild.id);
 })
 
 /* This is a big messageCreate function for join and leave */
@@ -226,15 +217,35 @@ client.on("messageCreate", async (msg) => {
 		let relatedEmoji = str.split(' ', 4)[2];
 		let soundURL = str.split(' ', 4)[3];
 
-		createSound(commandName, relatedEmoji, soundURL, currentServerID);
+		createSound(commandName, relatedEmoji, soundURL, msg, currentServerID);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
 		let str = msg.content;
 		let commandName = str.split(' ', 2)[1];
-		deleteSound(commandName, currentServerID);
+		deleteSound(commandName, msg, currentServerID);
 	}
 
+})
+
+client.on('messageReactionAdd', (reaction, user) => {
+	let currentServerID = reaction.message.guild.id;
+	server.findOne({ guildID: currentServerID }, async function (err, server) {
+		if (reaction.message.author == "1006684796983971900" && user.id != "1006684796983971900") {
+				for (let i = 0; i < server.commands.length; i++) {
+					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
+						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
+						// console.log("Button pressed!");
+						// msg.channel.send("Button pressed!");
+						try {
+							playMusic(server.commands[i].soundURL, user.id, currentServerID);
+						} catch {
+							message.send("One of your links is malformed. Delete it using `deletesound <commandName>`.")
+						}
+					}
+			}
+		}
+	})
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

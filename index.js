@@ -144,17 +144,17 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 		commands: [
 			{
 				commandName: "Bruh",
-				relatedEmoji: "pensive",
+				relatedEmoji: "😔",
 				soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
 			}, 
 			{
 				commandName: "Boowomp",
-				relatedEmoji: "slight_frown",
+				relatedEmoji: "🙁",
 				soundURL: "https://youtu.be/FHQC6BsW9AY"
 			},
 			{
 				commandName: "Rickroll", 
-				relatedEmoji: "smiling_imp",
+				relatedEmoji: "😈",
 				soundURL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 			},
 	]
@@ -162,7 +162,7 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 })
 
 client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
-	server.findOneAndDelete({"guildID": guild.id})
+	server.findOneAndDelete({"guildID": guild.id}).exec()
 })
 
 /* This is a big messageCreate function for join and leave */
@@ -176,8 +176,8 @@ client.on("messageCreate", async (msg) => {
 			("Commands: \n\n" +
 
 				"----- MISC COMMANDS -----\n" +
-				`\`${prefix}help\`: Sends this message :nerd:\n` +
-				`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot :exclamation:\n\n` +
+				`\`${prefix}help\`: Sends this message. :nerd:\n` +
+				`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot. :exclamation:\n\n` +
 
 				"----- VOICE CHAT COMMANDS -----\n" +
 				`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
@@ -185,8 +185,8 @@ client.on("messageCreate", async (msg) => {
 
 				"----- SOUNDBOARD COMMANDS -----\n" +
 				`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` +
-				`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n` +
-				`\`${prefix}deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n` +
+				`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Adds a custom sound to the soundboard. Takes in name, any unicode emoji, and a playable Youtube URL. :notepad_spiral:\n` +
+				`\`${prefix}deletesound <commandName>\`: Takes in a command name and deletes the corresponding sound from the soundboard. :x:\n\n` +
 
 				"----- EXAMPLES -----\n" +
 				`${prefix}changeprefix %\n` +

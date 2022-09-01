@@ -3,13 +3,7 @@ import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceCha
 import dotenv from 'dotenv'
 import play from 'play-dl';
 import mongoose from 'mongoose';
-import emojione from 'emojione';
 dotenv.config();
-
-//We could store the ID in a constant?
-const NeumontServerID = "1006328808401555527";
-
-const EukaryoticServerID = "1010406994332627026";
 
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
@@ -26,8 +20,8 @@ const client = new DiscordJS.Client({
 	]
 })
 
-async function connectToChannel(userID) {
-	const guild = client.guilds.cache.get(NeumontServerID) //Guild/Server ID
+async function connectToChannel(userID, currentServerID) {
+	const guild = client.guilds.cache.get(currentServerID) //Guild/Server ID
 
 	try {
 		const user = await guild.members.fetch(userID)
@@ -45,14 +39,16 @@ async function connectToChannel(userID) {
 			throw error;
 		}
 	} catch {
+		console.log("Error!");
 		return;
 	}
 }
 
-async function playMusic(URL, userID) {
-	const connection = await connectToChannel(userID);
+async function playMusic(URL, userID, currentServerID) {
+	const connection = await connectToChannel(userID, currentServerID);
 
 	try {
+
 		//Youtube Link Player
 		const stream = await play.stream(URL, { filter: "audioonly" })
 		const player = createAudioPlayer();
@@ -66,21 +62,21 @@ async function playMusic(URL, userID) {
 		player.on(AudioPlayerStatus.Idle, async () => {
 			connection.destroy();
 		})
-	} catch (e) {
+	} catch {
 		console.log("Error playing sound!")
 	}
 }
 
-async function changePrefix(prefix) {
-	await server.updateOne({ guildID: NeumontServerID }, {
+async function changePrefix(prefix, currentServerID) {
+	await server.updateOne({ guildID: currentServerID }, {
 		"prefix": prefix
 	})
 }
 
-async function createSound(commandName, relatedEmoji, soundURL) {
+async function createSound(commandName, relatedEmoji, soundURL, currentServerID) {
 	console.log("Creating sound");
 	if (commandName != "" && relatedEmoji != "" && soundURL != "") {
-		await server.updateOne({ guildID: NeumontServerID }, {
+		await server.updateOne({ guildID: currentServerID }, {
 			$push: {
 				commands: {
 					"commandName": commandName,
@@ -92,16 +88,16 @@ async function createSound(commandName, relatedEmoji, soundURL) {
 	}
 }
 
-async function deleteSound(commandName) {
-	await server.updateOne({ guildID: NeumontServerID }, {
-		$pull: {"commands": {"commandName": commandName}}
+async function deleteSound(commandName, currentServerID) {
+	await server.updateOne({ guildID: currentServerID }, {
+		$pull: { "commands": { "commandName": commandName } }
 	})
 }
 
-async function soundBoard(msg) {
+async function soundBoard(msg, currentServerID) {
 	var soundboardString = "Click a reaction to play the corresponding sound:\n"
 
-	server.findOne({ guildID: NeumontServerID }, function (err, server) {
+	server.findOne({ guildID: currentServerID }, function (err, server) {
 		if (err) return handleError(err) //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
@@ -123,9 +119,9 @@ async function soundBoard(msg) {
 				for (let i = 0; i < server.commands.length; i++) {
 					if (reaction.message.reactions.cache.get(server.commands[i].relatedEmoji) &&
 						reaction.message.reactions.cache.get(server.commands[i].relatedEmoji).count >= 2) {
-						console.log("Button pressed!");
-						msg.channel.send("Button pressed!");
-						playMusic(server.commands[i].soundURL, user.id);
+						// console.log("Button pressed!");
+						// msg.channel.send("Button pressed!");
+						playMusic(server.commands[i].soundURL, user.id, currentServerID);
 					}
 				}
 			}
@@ -133,145 +129,112 @@ async function soundBoard(msg) {
 	});
 }
 
-
-////////////Unused commands////////////
-async function bruh() {
-	playMusic("https://www.youtube.com/watch?v=2ZIpFytCSVc");
-}
-
-async function boowomp() {
-	playMusic("https://youtu.be/Ta2CK4ByGsw");
-}
-
-async function marioScream() {
-	playMusic("https://www.youtube.com/watch?v=TCW72WQdQ8A");
-}
-////////////////////////////////////////
-
 client.on('ready', async () => {
 	console.log("Good Morning Master")
 
 	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
 		keepAlive: true
 	})
+})
 
-	// ////////Syntax for setting up a new server/updating commands?////////////
-	// var test = await new testSchema({
-	// 	guildID: NeumontServerID,
-	// 	prefix: prefix,
-	// 	commands: [
-	// 		{
-	// 			commandName: "Bruh",
-	// 			relatedEmoji: "pensive",
-	// 			soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
-	// 		}, 
-	// 		{
-	// 			commandName: "Boowomp",
-	// 			relatedEmoji: "slight_frown",
-	// 			soundURL: "https://youtu.be/FHQC6BsW9AY"
-	// 		},
-	// 		{
-	// 			commandName: "Rickroll", 
-	// 			relatedEmoji: "smiling_imp",
-	// 			soundURL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-	// 		},
-	// ]
-	// }).save()
-	// /////////////////////////////////////////////////////////////////////////
+client.on('guildCreate', async guild => { //Sets up new servers with 3 commands: Bruh, Boowomp, and Rickroll
+	var test = await new testSchema({
+		guildID: guild.id,
+		prefix: "!",
+		commands: [
+			{
+				commandName: "Bruh",
+				relatedEmoji: "😔",
+				soundURL: "https://www.youtube.com/watch?v=2ZIpFytCSVc"
+			}, 
+			{
+				commandName: "Boowomp",
+				relatedEmoji: "🙁",
+				soundURL: "https://youtu.be/FHQC6BsW9AY"
+			},
+			{
+				commandName: "Rickroll", 
+				relatedEmoji: "😈",
+				soundURL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+			},
+	]
+	}).save()
+})
+
+client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
+	server.findOneAndDelete({"guildID": guild.id}).exec()
 })
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
-	let query = await server.findOne({ guildID: NeumontServerID }, 'prefix').exec();
+	let currentServerID = msg.guild.id;
+	let query = await server.findOne({ guildID: currentServerID }, 'prefix').exec();
 	let prefix = query.get("prefix");
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
 
 		msg.channel.send
-		("Commands: \n\n" +
+			("Commands: \n\n" +
 
-		"----- MISC COMMANDS -----\n" +
-		`\`${prefix}help\`: Sends this message :nerd:\n` +
-		`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot :exclamation:\n\n` +
+				"----- MISC COMMANDS -----\n" +
+				`\`${prefix}help\`: Sends this message. :nerd:\n` +
+				`\`${prefix}changeprefix <newPrefix>\`: Allows you to change the server's prefix for this bot. :exclamation:\n\n` +
 
-		"----- VOICE CHAT COMMANDS -----\n" +
-		`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
-		`\`${prefix}leave\`: Leaves the voice call. :wave:\n\n` +
+				"----- VOICE CHAT COMMANDS -----\n" +
+				`\`${prefix}join\`: Joins the voice call of the user that sent it. :ear:\n` +
+				`\`${prefix}leave\`: Leaves the voice call. :wave:\n\n` +
 
-		"----- SOUNDBOARD COMMANDS -----\n" +
-		`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` + 
-		`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Creates a custom sound to the soundboard. Takes in name, any base emoji, and a playable Youtube URL. :notepad_spiral:\n` +
-		`\`${prefix}deletesound <commandName>\`: Deletes the sound from the soundboard that matches the given command name. :x:\n\n` +
-		
-		"----- EXAMPLES -----\n" +
-		`${prefix}changeprefix %\n` +
-		`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
-		`${prefix}deletesound Rickroll\n\n` +
-		
-		"Your prefix is: \"" + prefix + "\""
-		
-		)
+				"----- SOUNDBOARD COMMANDS -----\n" +
+				`\`${prefix}soundboard\`: Sends the soundboard message, which you can react to to play the corresponding sound. :musical_note:\n` +
+				`\`${prefix}createsound <commandName> <relatedEmoji> <YoutubeURL>\`: Adds a custom sound to the soundboard. Takes in name, any unicode emoji, and a playable Youtube URL. :notepad_spiral:\n` +
+				`\`${prefix}deletesound <commandName>\`: Takes in a command name and deletes the corresponding sound from the soundboard. :x:\n\n` +
+
+				"----- EXAMPLES -----\n" +
+				`${prefix}changeprefix %\n` +
+				`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
+				`${prefix}deletesound Rickroll\n\n` +
+
+				"Your prefix is: \"" + prefix + "\""
+
+			)
 	}
-	
+
 	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
-		connectToChannel(msg.author.id);
+		connectToChannel(msg.author.id, currentServerID);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}leave`)) { //Leave command -- makes bot leave voice chat
 		//Check first if bot is in a voice chat?
 		if (msg.member.voice.channel) {
-			(await connectToChannel(msg.author.id)).destroy();
+			(await connectToChannel(msg.author.id, currentServerID)).destroy();
 		}
 	}
 
-	else if (msg.content.toLowerCase().startsWith(`${prefix}changeprefix`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}changeprefix`)) { //Change prefix command -- allows user to change command prefix
 		let str = msg.content;
-		let newPrefix = str.split(' ',2)[1];
-		changePrefix(newPrefix);
+		let newPrefix = str.split(' ', 2)[1];
+		changePrefix(newPrefix, currentServerID);
 		msg.channel.send("Prefix changed! Your new prefix is: " + newPrefix);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}soundboard`)) { //Soundboard command -- sends message with reactions to play sounds
-		soundBoard(msg);
+		soundBoard(msg, currentServerID);
 	}
 
-	if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) {
-		playMusic("https://youtu.be/Ta2CK4ByGsw")
-	}
-
-	if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) {
+	else if (msg.content.toLowerCase().startsWith(`${prefix}createsound`)) { //Create sound command -- allows user to add a custom sound to the soundboard
 		let str = msg.content;
-		let commandName = str.split(' ',4)[1];
-		let relatedEmoji = str.split(' ',4)[2];
-		let soundURL = str.split(' ',4)[3];
+		let commandName = str.split(' ', 4)[1];
+		let relatedEmoji = str.split(' ', 4)[2];
+		let soundURL = str.split(' ', 4)[3];
 
-		createSound(commandName, relatedEmoji, soundURL);
-
+		createSound(commandName, relatedEmoji, soundURL, currentServerID);
 	}
-	
+
 	else if (msg.content.toLowerCase().startsWith(`${prefix}deletesound`)) { //Deletesound command -- allows a user to remove a custom sound
 		let str = msg.content;
-		let commandName = str.split(' ',2)[1];
-		deleteSound(commandName);
+		let commandName = str.split(' ', 2)[1];
+		deleteSound(commandName, currentServerID);
 	}
 
-	// //////////Unused commands////////////
-	// if (msg.content.toLowerCase().startsWith(`${prefix}bruh`)) { //Bruh sound
-	// 	bruh();
-	// }
-	// //Boowomp Sound effect off Youtube https://youtu.be/Ta2CK4ByGsw
-	
-	// if (msg.content.toLowerCase().startsWith(`${prefix}boowomp`)) { //Boowomp sound
-	// 	boowomp();
-	// }
-	
-	// if (msg.content.toLowerCase().startsWith(`${prefix}mario Scream`)) { //Mario scream sound
-	// 	marioScream();
-	// }
-	// else if (msg.content.toLowerCase().startsWith(`${prefix}play music`)) { //Play music command -- unlisted command that plays a Rickroll
-	// 	playMusic("https://youtu.be/Ta2CK4ByGsw")
-	// }
-	////////////////////////////////////////
-	
 })
 /*end of messageCreate*/
 client.login(process.env.TOKEN)

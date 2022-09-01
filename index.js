@@ -161,6 +161,10 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 	}).save()
 })
 
+client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
+	server.findOneAndDelete({"guildID": guild.id})
+})
+
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
 	let currentServerID = msg.guild.id;

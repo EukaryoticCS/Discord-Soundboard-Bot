@@ -1,6 +1,6 @@
-import DiscordJS, { IntentsBitField } from 'discord.js'
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice'
-import dotenv from 'dotenv'
+import DiscordJS, { IntentsBitField } from 'discord.js';
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
+import dotenv from 'dotenv';
 import play from 'play-dl';
 import mongoose from 'mongoose';
 dotenv.config();
@@ -18,14 +18,14 @@ const client = new DiscordJS.Client({
 		IntentsBitField.Flags.GuildMessageReactions,
 		IntentsBitField.Flags.GuildVoiceStates,
 	]
-})
+});
 
 async function connectToChannel(userID, currentServerID) {
-	const guild = client.guilds.cache.get(currentServerID) //Guild/Server ID
+	const guild = client.guilds.cache.get(currentServerID); //Guild/Server ID
 
 	try {
-		const user = await guild.members.fetch(userID)
-		const channel = guild.channels.cache.get(user.voice.channel.id) //Voice chat channel ID
+		const user = await guild.members.fetch(userID);
+		const channel = guild.channels.cache.get(user.voice.channel.id); //Voice chat channel ID
 
 		const connection = joinVoiceChannel({
 			channelId: channel.id,
@@ -48,7 +48,7 @@ async function playMusic(URL, userID, currentServerID) {
 	const connection = await connectToChannel(userID, currentServerID);
 
 		//Youtube Link Player
-		const stream = await play.stream(URL, { filter: "audioonly" })
+		const stream = await play.stream(URL, { filter: "audioonly" });
 		const player = createAudioPlayer();
 		const resource = createAudioResource(stream.stream, { inputType: stream.type });
 
@@ -59,13 +59,13 @@ async function playMusic(URL, userID, currentServerID) {
 
 		player.on(AudioPlayerStatus.Idle, async () => {
 			connection.destroy();
-		})
+		});
 }
 
 async function changePrefix(prefix, currentServerID) {
 	await server.updateOne({ guildID: currentServerID }, {
 		"prefix": prefix
-	})
+	});
 }
 
 async function createSound(commandName, relatedEmoji, soundURL, msg, currentServerID) {
@@ -89,23 +89,30 @@ async function createSound(commandName, relatedEmoji, soundURL, msg, currentServ
 					"soundURL": soundURL,
 				}
 			}
-		})
+		});
 		msg.channel.send("Sound created: " + commandName + " " + relatedEmoji + " <" + soundURL + ">");
 	}
 }
 
 async function deleteSound(commandName, msg, currentServerID) {
+	//Does nothing if the sound doesn't exist
+	if (await server.findOne({"commands.commandName": commandName}).exec() == null) {
+		msg.channel.send("You don't have a sound with that name!");
+		return;
+	}
+
 	await server.updateOne({ guildID: currentServerID }, {
 		$pull: { "commands": { "commandName": commandName } }
-	}) 
-	msg.channel.send("Sound deleted!"); //Doesn't check if a sound was actually deleted :grimacing:
+	});
+
+	msg.channel.send("Sound deleted!");
 }
 
 async function soundBoard(msg, currentServerID) {
-	var soundboardString = "Click a reaction to play the corresponding sound:\n"
+	var soundboardString = "Click a reaction to play the corresponding sound:\n";
 
 	server.findOne({ guildID: currentServerID }, async function (err, server) {
-		if (err) return handleError(err) //Potentially not needed?
+		if (err) return handleError(err); //Potentially not needed?
 		console.log(server.guildID + ' is your guildID');
 
 		for (let i = 0; i < server.commands.length; i++) {
@@ -125,11 +132,11 @@ async function soundBoard(msg, currentServerID) {
 }
 
 client.on('ready', async () => {
-	console.log("Good Morning Master")
+	console.log("Good Morning Master");
 
 	var connection = await mongoose.connect(process.env.MONGO_URI || '', {
 		keepAlive: true
-	})
+	});
 })
 
 client.on('guildCreate', async guild => { //Sets up new servers with 3 commands: Bruh, Boowomp, and Rickroll
@@ -153,13 +160,13 @@ client.on('guildCreate', async guild => { //Sets up new servers with 3 commands:
 				soundURL: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 			},
 	]
-	}).save()
-})
+	}).save();
+});
 
 client.on("guildDelete", async guild => { //Removes data from the database if a server leaves
-	server.findOneAndDelete({"guildID": guild.id}).exec()
+	server.findOneAndDelete({"guildID": guild.id}).exec();
 	console.log("Kicked from server: " + guild.id);
-})
+});
 
 /* This is a big messageCreate function for join and leave */
 client.on("messageCreate", async (msg) => {
@@ -167,9 +174,8 @@ client.on("messageCreate", async (msg) => {
 	let query = await server.findOne({ guildID: currentServerID }, 'prefix').exec();
 	let prefix = query.get("prefix");
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
-
 		msg.channel.send
-			("Commands: \n\n" +
+				("Commands: \n\n" +
 
 				"----- MISC COMMANDS -----\n" +
 				`\`${prefix}help\`: Sends this message. :nerd:\n` +
@@ -190,8 +196,7 @@ client.on("messageCreate", async (msg) => {
 				"\`${prefix}deletesound Rickroll\n\n\`" +
 
 				"Your prefix is: \"" + prefix + "\""
-
-			)
+			);
 	}
 
 	else if (msg.content.toLowerCase().startsWith(`${prefix}join`)) { //Join command -- connects bot to voice chat
@@ -246,12 +251,12 @@ client.on('messageReactionAdd', async (reaction, user) => { //Checks for users c
 						await playMusic(server.commands[i].soundURL, user.id, currentServerID);
 					} catch {
 						//If the URL doesn't work, catch it here, send a message back
-						reaction.message.channel.send("The link for that sound is malformed. Delete it using `deletesound <commandName>`.")
+						reaction.message.channel.send("The link for that sound is malformed. Delete it using `deletesound <commandName>`.");
 					}
 				}
 			}
 		}
-	})
-})
+	});
+});
 
-client.login(process.env.TOKEN)
+client.login(process.env.TOKEN);

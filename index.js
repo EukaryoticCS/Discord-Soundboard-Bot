@@ -44,7 +44,7 @@ async function connectToChannel(userID, currentServerID) {
 	}
 }
 
-async function playMusic(URL, userID, currentServerID) {
+async function playSound(URL, userID, currentServerID) {
 	const connection = await connectToChannel(userID, currentServerID);
 
 		//Youtube Link Player
@@ -191,11 +191,11 @@ client.on("messageCreate", async (msg) => {
 				`\`${prefix}deletesound <commandName>\`: Takes in a command name and deletes the corresponding sound from the soundboard. :x:\n\n` +
 
 				"----- EXAMPLES -----\n" +
-				"\`${prefix}changeprefix %\n\`" +
-				"\`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n\`" +
-				"\`${prefix}deletesound Rickroll\n\n\`" +
+				`${prefix}changeprefix %\n` +
+				`${prefix}createsound Rickroll :smiling_imp: <https://www.youtube.com/watch?v=dQw4w9WgXcQ>\n` +
+				`${prefix}deletesound Rickroll` +
 
-				"Your prefix is: \"" + prefix + "\""
+				"\n\nYour prefix is: \"" + prefix + "\""
 			);
 	}
 
@@ -235,8 +235,7 @@ client.on("messageCreate", async (msg) => {
 		let commandName = str.split(' ', 2)[1];
 		deleteSound(commandName, msg, currentServerID);
 	}
-
-})
+});
 
 client.on('messageReactionAdd', async (reaction, user) => { //Checks for users clicking a reaction, plays the corresponding sound
 	let currentServerID = reaction.message.guild.id;
@@ -248,7 +247,7 @@ client.on('messageReactionAdd', async (reaction, user) => { //Checks for users c
 					// console.log("Button pressed!");
 					// msg.channel.send("Button pressed!");
 					try {
-						await playMusic(server.commands[i].soundURL, user.id, currentServerID);
+						await playSound(server.commands[i].soundURL, user.id, currentServerID);
 					} catch {
 						//If the URL doesn't work, catch it here, send a message back
 						reaction.message.channel.send("The link for that sound is malformed. Delete it using `deletesound <commandName>`.");

@@ -72,10 +72,10 @@ async function createSound(commandName, relatedEmoji, soundURL, msg, currentServ
 	console.log("Creating sound");
 
 	//Making sure you don't duplicate any command names or emojis
-	if (await server.findOne({"commands.commandName": commandName}).exec() != null) {
+	if (await server.findOne({"guildID": currentServerID, "commands.commandName": commandName}).exec() != null) {
 		msg.channel.send("You already have a sound with that name!");
 		return;
-	} else if (await server.findOne({"commands.relatedEmoji": relatedEmoji}).exec() != null) {
+	} else if (await server.findOne({"GuildID": currentServerID, "commands.relatedEmoji": relatedEmoji}).exec() != null) {
 		msg.channel.send("You already have a sound with that emoji!");
 		return;
 	}

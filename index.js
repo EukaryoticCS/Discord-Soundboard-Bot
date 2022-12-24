@@ -1,4 +1,4 @@
-import DiscordJS, { IntentsBitField } from 'discord.js';
+import DiscordJS, { IntentsBitField, User, UserFlags } from 'discord.js';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
 import dotenv from 'dotenv';
 import play from 'play-dl';
@@ -235,6 +235,13 @@ client.on("messageCreate", async (msg) => {
 		let commandName = str.split(' ', 2)[1];
 		deleteSound(commandName, msg, currentServerID);
 	}
+
+	else if(msg.content.toLowerCase().startsWith(`${prefix}play`)){
+		let str = msg.content;
+		let videoLink = str.split(' ', 2)[1];
+		console.log(videoLink)
+		playSound(videoLink, msg.author.id, currentServerID);
+	}
 });
 
 client.on('messageReactionAdd', async (reaction, user) => { //Checks for users clicking a reaction, plays the corresponding sound
@@ -257,5 +264,6 @@ client.on('messageReactionAdd', async (reaction, user) => { //Checks for users c
 		}
 	});
 });
+
 
 client.login(process.env.TOKEN);

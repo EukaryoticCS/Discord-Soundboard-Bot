@@ -1,4 +1,4 @@
-import DiscordJS, { IntentsBitField, User, UserFlags } from 'discord.js';
+import DiscordJS, { Guild, GuildMember, IntentsBitField, User, UserFlags, VoiceState } from 'discord.js';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
 import dotenv from 'dotenv';
 import play from 'play-dl';
@@ -8,6 +8,7 @@ dotenv.config();
 ////////////// Setup stuff for Mongo //////////////////
 import testSchema from './test-schema.js';
 var server = testSchema;
+const queue = new Array();
 ///////////////////////////////////////////////////////
 
 const client = new DiscordJS.Client({
@@ -56,7 +57,6 @@ async function playSound(URL, userID, currentServerID) {
 		player.play(resource);
 		player.on('error', (error) => console.error(error)); //Just in case
 		connection.subscribe(player);
-
 		player.on(AudioPlayerStatus.Idle, async () => {
 			connection.destroy();
 		});
@@ -173,6 +173,7 @@ client.on("messageCreate", async (msg) => {
 	let currentServerID = msg.guild.id;
 	let query = await server.findOne({ guildID: currentServerID }, 'prefix').exec();
 	let prefix = query.get("prefix");
+	
 	if (msg.content.toLowerCase().startsWith(`${prefix}help`)) { //Help command -- shows possible commands and syntax
 		msg.channel.send
 				("Commands: \n\n" +
@@ -237,10 +238,14 @@ client.on("messageCreate", async (msg) => {
 	}
 
 	else if(msg.content.toLowerCase().startsWith(`${prefix}play`)){
+		
 		let str = msg.content;
 		let videoLink = str.split(' ', 2)[1];
-		console.log(videoLink)
-		playSound(videoLink, msg.author.id, currentServerID);
+
+			playSound(videoLink, msg.author.id, currentServerID);
+			console.log("time to play this link: "+videoLink);
+		
+		
 	}
 });
 
@@ -263,6 +268,8 @@ client.on('messageReactionAdd', async (reaction, user) => { //Checks for users c
 			}
 		}
 	});
+
+
 });
 
 
